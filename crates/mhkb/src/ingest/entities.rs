@@ -560,6 +560,12 @@ fn item_card(ctx: &Ctx, lang: &str, key: &str, item: &Value, doc: &impl Fn(&str,
     if !props.is_empty() {
         let _ = writeln!(c, "Properties: {}", props.join(", "));
     }
+    // Lowers (or raises, when negative) the watcher's death chance by this many percentage points
+    if let Some(impact) = num(item, "watchimpact").filter(|i| *i != 0.0) {
+        let per_copy = if props.contains(&"nw_impact_cumul") { "per copy carried" } else { "once, however many copies are carried" };
+        let effect = if impact > 0.0 { "lowers" } else { "raises" };
+        let _ = writeln!(c, "Night watch: carried in your rucksack while on watch, it {effect} your death chance by {} percentage points ({per_copy})", fmt_num(impact.abs()));
+    }
     let desc = s(item, "description");
     if !desc.is_empty() {
         let _ = writeln!(c, "\n{}", ctx.label(lang, &["items"], desc));

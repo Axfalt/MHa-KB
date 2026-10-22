@@ -358,3 +358,12 @@
     - "The Scavenger (Fouineur) digs with a +20% bonus and auto-digs faster"
     - "With the Small Spade, once per day, the Scavenger can excavate a depleted zone to make it searchable again; each zone can be excavated only once"
   note: "qa_log #7 👎: the excavation was in a later chunk of the job card, never shown to the bot"
+
+- q: Le café a-t-il un effet quand il est dans mon coffre ?
+  lang: fr
+  level: casual
+  expect: [card:item:coffee_#00, topic:night-watch]
+  facts:
+    - "No effect while stored in the home chest"
+    - "Carried in the rucksack during a night watch, each Hot Coffee lowers the watch death chance by 1 percentage point (copies add up)"
+  note: "qa_log #10 👎: item cards didn't show the watch death modifier (watchimpact)"
