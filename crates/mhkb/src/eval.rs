@@ -82,7 +82,7 @@ pub async fn run(pool: &PgPool, embedder: &Embedder, questions: &Path, only: Opt
     let summarize = |set: &[&Outcome]| -> String {
         let n = set.len().max(1) as f64;
         let hit1 = set.iter().filter(|o| o.rank == Some(1)).count();
-        let hitk = set.iter().filter(|o| o.rank.is_some()).count();
+        let hitk = set.iter().filter(|o| o.rank.is_some_and(|r| r <= k)).count();
         let mrr: f64 = set.iter().filter_map(|o| o.rank).map(|r| 1.0 / r as f64).sum::<f64>() / n;
         format!("hit@1 {:>3.0}%  hit@{k} {:>3.0}%  MRR {:.2}  (n={})", hit1 as f64 / n * 100.0, hitk as f64 / n * 100.0, mrr, set.len())
     };
