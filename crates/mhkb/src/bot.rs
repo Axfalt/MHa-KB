@@ -1,7 +1,7 @@
 //! Discord bot: `/ask` for players, `/dev` for developers, with feedback buttons,
 //! per-user rate limits and a daily spending cap.
 
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use std::time::Instant;
 
 use anyhow::Result;
@@ -9,6 +9,7 @@ use kb_core::answer::{self, Answer, AnswerConfig, Mode};
 use kb_core::claude::Claude;
 use kb_core::embed::Embedder;
 use poise::serenity_prelude as serenity;
+use regex::Regex;
 use serde_json::json;
 use sqlx::PgPool;
 use tracing::{error, info};
@@ -18,6 +19,9 @@ type Context<'a> = poise::Context<'a, Data, Error>;
 
 const GITLAB_BLOB: &str = "https://gitlab.com/eternaltwin/myhordes/myhordes/-/blob";
 const EMBED_COLOR: u32 = 0x8b1a1a;
+
+/// Citation markers like " [1]" or " [2] [3]" in an answer
+static MARKERS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s*\[\d+\](?:\s*\[\d+\])*").unwrap());
 
 pub struct BotConfig {
     pub token: String,
@@ -140,8 +144,13 @@ fn truncate(s: &str, max_chars: usize) -> String {
 }
 
 fn render(question: &str, a: &Answer, mode: Mode, qa_id: i64, secs: f32) -> poise::CreateReply {
+    // Players can't open the cited documents, so their answers carry no citations (they stay in qa_log)
+    let (text, cited) = match mode {
+        Mode::Player => (MARKERS.replace_all(&a.text, "").into_owned(), &[][..]),
+        Mode::Dev => (a.text.clone(), &a.sources[..]),
+    };
     let mut sources = String::new();
-    for (i, s) in a.sources.iter().enumerate() {
+    for (i, s) in cited.iter().enumerate() {
         let link = match (mode, &s.path, &s.git_sha) {
             (Mode::Dev, Some(path), Some(sha)) => Some(format!("{GITLAB_BLOB}/{sha}/{path}")),
             _ => None,
@@ -169,7 +178,7 @@ fn render(question: &str, a: &Answer, mode: Mode, qa_id: i64, secs: f32) -> pois
     }
     let mut embed = serenity::CreateEmbed::new()
         .title(truncate(question, 250))
-        .description(truncate(&a.text, 4000))
+        .description(truncate(&text, 4000))
         .color(EMBED_COLOR)
         .footer(serenity::CreateEmbedFooter::new(footer));
     if !sources.is_empty() {
