@@ -107,6 +107,9 @@ enum Cmd {
         /// Model answering the questions (with --answers)
         #[arg(long, env = "ANSWER_MODEL", default_value = "claude-opus-5-5")]
         model: String,
+        /// Effort of the answering model (with --answers), as the bot's PLAYER_EFFORT
+        #[arg(long, env = "PLAYER_EFFORT", default_value = "low")]
+        effort: String,
         /// Model grading the answers (with --answers)
         #[arg(long, default_value = "claude-opus-5-5")]
         judge_model: String,
@@ -134,8 +137,12 @@ enum Cmd {
     },
     /// Run the Discord bot (DISCORD_TOKEN, DISCORD_GUILD_ID, DAILY_BUDGET_USD, USER_LIMIT_PER_HOUR, ALLOWED_CHANNEL_IDS, DEV_ROLE_ID)
     Bot {
-        #[arg(long, env = "ANSWER_MODEL", default_value = "claude-opus-5-5")]
+        /// Model for /ask (player questions: most of the traffic)
+        #[arg(long, env = "ANSWER_MODEL", default_value = "claude-haiku-5-5")]
         model: String,
+        /// Model for /dev
+        #[arg(long, env = "DEV_MODEL", default_value = "claude-opus-5-5")]
+        dev_model: String,
         #[arg(long, env = "PLAYER_EFFORT", default_value = "low")]
         player_effort: String,
         #[arg(long, env = "DEV_EFFORT", default_value = "medium")]
@@ -242,9 +249,10 @@ async fn main() -> Result<()> {
                 }
             }
         }
-        Cmd::Eval { questions, k, out, verbose, answers, model, judge_model, only } => {
+        Cmd::Eval { questions, k, out, verbose, answers, model, effort, judge_model, only } => {
             if answers {
-                let cfg = AnswerConfig { model, ..Default::default() };
+                let mut cfg = AnswerConfig { model, ..Default::default() };
+                cfg.effort.0 = effort;
                 eval::run_answers(&pool, &load_searcher()?, &Claude::from_env()?, &questions, only.as_deref(), &cfg, &judge_model, out.as_deref(), verbose).await?;
             } else {
                 eval::run(&pool, &load_searcher()?, &questions, only.as_deref(), k, out.as_deref(), verbose).await?;
@@ -285,9 +293,10 @@ async fn main() -> Result<()> {
                 a.cost_usd
             );
         }
-        Cmd::Bot { model, player_effort, dev_effort } => {
+        Cmd::Bot { model, dev_model, player_effort, dev_effort } => {
             let cfg = AnswerConfig { model, effort: (player_effort, dev_effort), ..Default::default() };
-            bot::run(pool, load_searcher()?, Claude::from_env()?, bot::BotConfig::from_env(cfg)?).await?;
+            let dev_cfg = AnswerConfig { model: dev_model, ..cfg.clone() };
+            bot::run(pool, load_searcher()?, Claude::from_env()?, bot::BotConfig::from_env(cfg, dev_cfg)?).await?;
         }
         Cmd::Summarize { model, effort, only, sync, limit, no_index } => {
             let opts = summarize::Options { model, effort, only, sync, limit };

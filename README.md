@@ -45,7 +45,7 @@ cargo run --release -- ask "quel TownSetting règle les fouilles ?" --lang fr --
 cargo run --release -- bot                                       # Discord bot: /ask and /dev
 ```
 
-Answers come from Claude (`ANSWER_MODEL`, default `claude-opus-5-5`) with tools over the knowledge base
+Answers come from Claude (`/ask`: `ANSWER_MODEL`, default `claude-haiku-5-5`; `/dev`: `DEV_MODEL`, default `claude-opus-5-5`) with tools over the knowledge base
 (`search`, `get_document`, `find_entity`). Every bot answer is logged in `qa_log` with its cost and the
 👍/👎 feedback.
 
@@ -71,7 +71,8 @@ reference facts verified against the game code. Add questions that got a 👎 on
 | `EXPORT_DIR` | `export` | |
 | `MYHORDES_DIR` | `../myhordes` | |
 | `ANTHROPIC_API_KEY` | | Required by `ask`, `bot`, `eval --answers` |
-| `ANSWER_MODEL` | `claude-opus-5-5` | |
+| `ANSWER_MODEL` | `claude-haiku-5-5` (bot), `claude-opus-5-5` (`ask`, `eval`) | Model for `/ask`. Answer eval: Haiku 0.82 at ~$0.001/answer, Opus 0.98 at ~$0.04 |
+| `DEV_MODEL` | `claude-opus-5-5` | Model for `/dev` |
 | `PLAYER_EFFORT` / `DEV_EFFORT` | `low` / `medium` | Claude effort for `/ask` and `/dev` |
 | `DISCORD_TOKEN` | | Required by `bot` |
 | `DISCORD_GUILD_ID` | | Register commands on one server only (instant, for testing); global otherwise |

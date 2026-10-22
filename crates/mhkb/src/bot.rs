@@ -27,7 +27,10 @@ pub struct BotConfig {
     pub token: String,
     /// Register commands on this server only (instant updates while testing); global otherwise
     pub guild_id: Option<u64>,
+    /// `/ask` answers
     pub answer: AnswerConfig,
+    /// `/dev` answers: rarer questions that need deeper reasoning over code
+    pub dev_answer: AnswerConfig,
     pub daily_budget_usd: f64,
     pub user_limit_per_hour: i64,
     /// When set, the bot only answers in these channels
@@ -37,13 +40,14 @@ pub struct BotConfig {
 }
 
 impl BotConfig {
-    pub fn from_env(answer: AnswerConfig) -> Result<Self> {
+    pub fn from_env(answer: AnswerConfig, dev_answer: AnswerConfig) -> Result<Self> {
         let var = |k: &str| std::env::var(k).ok().filter(|v| !v.trim().is_empty());
         let ids = |k: &str| -> Vec<u64> { var(k).map(|v| v.split(',').filter_map(|s| s.trim().parse().ok()).collect()).unwrap_or_default() };
         Ok(Self {
             token: var("DISCORD_TOKEN").ok_or_else(|| anyhow::anyhow!("DISCORD_TOKEN is not set"))?,
             guild_id: var("DISCORD_GUILD_ID").and_then(|v| v.parse().ok()),
             answer,
+            dev_answer,
             daily_budget_usd: var("DAILY_BUDGET_USD").and_then(|v| v.parse().ok()).unwrap_or(5.0),
             user_limit_per_hour: var("USER_LIMIT_PER_HOUR").and_then(|v| v.parse().ok()).unwrap_or(10),
             allowed_channels: ids("ALLOWED_CHANNEL_IDS"),
@@ -203,7 +207,11 @@ async fn handle(ctx: Context<'_>, mode: Mode, question: String) -> Result<(), Er
 
     let data = ctx.data();
     let started = Instant::now();
-    let result = answer::answer(&data.pool, &data.embedder, &data.claude, &data.cfg.answer, mode, lang, &question).await;
+    let cfg = match mode {
+        Mode::Player => &data.cfg.answer,
+        Mode::Dev => &data.cfg.dev_answer,
+    };
+    let result = answer::answer(&data.pool, &data.embedder, &data.claude, cfg, mode, lang, &question).await;
     let latency_ms = started.elapsed().as_millis() as i32;
     let mode_name = if mode == Mode::Dev { "dev" } else { "player" };
 
@@ -246,7 +254,7 @@ async fn handle(ctx: Context<'_>, mode: Mode, question: String) -> Result<(), Er
                 .bind(None::<String>)
                 .bind(None::<serde_json::Value>)
                 .bind(None::<serde_json::Value>)
-                .bind(&data.cfg.answer.model)
+                .bind(&cfg.model)
                 .bind("error")
                 .bind(None::<i64>)
                 .bind(None::<i64>)
