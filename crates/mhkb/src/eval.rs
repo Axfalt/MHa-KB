@@ -20,6 +20,8 @@ struct Question {
     q: String,
     lang: Option<String>,
     level: String,
+    /// Empty for questions the KB should not answer (off-topic, nonexistent things)
+    #[serde(default)]
     expect: Vec<String>,
     #[serde(default)]
     facts: Vec<String>,
@@ -47,7 +49,8 @@ fn matches(key: &str, expected: &str) -> bool {
 }
 
 pub async fn run(pool: &PgPool, embedder: &Embedder, questions: &Path, only: Option<&str>, k: usize, out: Option<&Path>, verbose: bool) -> Result<()> {
-    let questions = load(questions, only)?;
+    let (questions, unanswerable): (Vec<Question>, Vec<Question>) = load(questions, only)?.into_iter().partition(|q| !q.expect.is_empty());
+    check_expectations(pool, &questions).await?;
 
     let mut outcomes = Vec::new();
     for question in &questions {
@@ -93,10 +96,70 @@ pub async fn run(pool: &PgPool, embedder: &Embedder, questions: &Path, only: Opt
         println!("{level:<8} {}", summarize(set));
     }
     println!("{:<8} {}", "all", summarize(&outcomes.iter().collect::<Vec<_>>()));
+    if !unanswerable.is_empty() {
+        println!("({} questions without expected documents skipped)", unanswerable.len());
+    }
 
     if let Some(out) = out {
         std::fs::write(out, serde_json::to_string_pretty(&outcomes)?)?;
         println!("\nresults written to {}", out.display());
+    }
+    Ok(())
+}
+
+/// Warns about expected keys that match no document: a typo, or a document that was renamed or
+/// pruned, would otherwise silently count as a miss
+async fn check_expectations(pool: &PgPool, questions: &[Question]) -> Result<()> {
+    let keys: Vec<String> = sqlx::query_scalar("SELECT key FROM documents").fetch_all(pool).await?;
+    let mut unknown: Vec<&str> = questions
+        .iter()
+        .flat_map(|q| &q.expect)
+        .filter(|e| !keys.iter().any(|k| matches(k, e)))
+        .map(String::as_str)
+        .collect();
+    unknown.sort_unstable();
+    unknown.dedup();
+    for e in &unknown {
+        println!("⚠ expected document not in the KB: {e}");
+    }
+    if !unknown.is_empty() {
+        println!();
+    }
+    Ok(())
+}
+
+/// Prints YAML stubs for bot questions (from `qa_log`) that aren't in the test set yet, with the
+/// documents the bot cited as candidate expectations. Expectations and facts must be checked by
+/// hand before the stub goes into `eval/questions.yaml`.
+pub async fn stubs(pool: &PgPool, questions: &Path) -> Result<()> {
+    let known: Vec<String> = load(questions, None)?.into_iter().map(|q| q.q.trim().to_lowercase()).collect();
+    let rows: Vec<(i64, String, String, Option<i16>, Option<Value>)> =
+        sqlx::query_as("SELECT id, lang, question, feedback, sources FROM qa_log ORDER BY id").fetch_all(pool).await?;
+    let mut seen = known;
+    for (id, lang, question, feedback, sources) in rows {
+        let norm = question.trim().to_lowercase();
+        if seen.contains(&norm) {
+            continue;
+        }
+        seen.push(norm);
+        let mut keys: Vec<String> = sources
+            .as_ref()
+            .and_then(|s| s.as_array())
+            .map(|a| a.iter().filter_map(|s| s["key"].as_str().map(str::to_string)).collect())
+            .unwrap_or_default();
+        keys.dedup();
+        let feedback = match feedback {
+            Some(f) if f < 0 => ", 👎",
+            Some(f) if f > 0 => ", 👍",
+            _ => "",
+        };
+        println!("- q: {}", serde_json::to_string(question.trim())?);
+        println!("  lang: {lang}");
+        println!("  level: casual");
+        println!("  expect: [{}]", keys.join(", "));
+        println!("  facts: []");
+        println!("  note: \"qa_log #{id}{feedback}\"
+");
     }
     Ok(())
 }

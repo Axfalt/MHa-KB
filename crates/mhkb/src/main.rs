@@ -177,6 +177,11 @@ enum Cmd {
     Feedback {
         #[arg(short, default_value_t = 20)]
         n: i64,
+        /// Instead, print YAML stubs for logged questions missing from the test set
+        #[arg(long)]
+        stubs: bool,
+        #[arg(long, default_value = "eval/questions.yaml")]
+        questions: PathBuf,
     },
     /// Document and chunk counts
     Stats,
@@ -288,7 +293,8 @@ async fn main() -> Result<()> {
             ingest::save(&pool, "topic:", dossier::documents(&knowledge)?).await?;
             embed(&pool, &embedder, false, 64).await?;
         }
-        Cmd::Feedback { n } => {
+        Cmd::Feedback { stubs: true, questions, .. } => eval::stubs(&pool, &questions).await?,
+        Cmd::Feedback { n, .. } => {
             let rows: Vec<(i64, chrono::DateTime<chrono::Utc>, String, String, Option<String>, Option<serde_json::Value>)> = sqlx::query_as(
                 "SELECT id, created_at, lang, question, answer, sources FROM qa_log WHERE feedback < 0 ORDER BY id DESC LIMIT $1",
             )
