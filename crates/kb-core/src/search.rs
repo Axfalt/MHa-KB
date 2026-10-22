@@ -70,7 +70,7 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
     let wants_summaries = opts.kinds.as_ref().is_none_or(|k| k.iter().any(|k| k == "summary" || k == "topic"));
     if wants_summaries {
         let summary_opts = SearchOptions { kinds: Some(vec!["summary".into(), "topic".into()]), ..opts.clone() };
-        add(vector_candidates(pool, dims, &qv, &summary_opts).await?, "summary", 1.0);
+        add(vector_candidates(pool, dims, &qv, &summary_opts).await?, "summary", 0.3);
     }
     add(fulltext_candidates(pool, query, opts).await?, "fulltext", 1.0);
     // A named entity in the question is a strong signal: weight its card higher. An exact nickname
@@ -101,24 +101,16 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
     let mut seen_docs = std::collections::HashSet::new();
     hits.retain(|h| seen_docs.insert(h.document_id));
 
-    // Quota: the best code explanations (English) always get a couple of slots, since a question in
-    // another language rarely ranks them high, yet they hold the actual formulas
+    // The best code explanations (English) are appended when the top k has fewer than 2: a question
+    // in another language rarely ranks them high, yet they hold the actual formulas. They come on
+    // top of the k results so they never push out what ranked well.
     let explains = |h: &Hit| h.kind == "summary" || h.kind == "topic";
-    let quota = if opts.kinds.is_none() && k >= 4 { 2 } else { 0 };
+    let wanted: usize = if opts.kinds.is_none() && k >= 4 { 2 } else { 0 };
     let in_top = hits.iter().take(k).filter(|h| explains(h)).count();
-    if in_top < quota {
-        let extra: Vec<Hit> = hits.iter().skip(k).filter(|h| explains(h)).take(quota - in_top).cloned().collect();
-        let mut top: Vec<Hit> = hits.into_iter().take(k).collect();
-        // Make room by dropping the lowest-ranked other documents
-        for e in extra {
-            if let Some(pos) = top.iter().rposition(|h| !explains(h)) {
-                top.remove(pos);
-            }
-            top.push(e);
-        }
-        return Ok(top);
-    }
+    let extra: Vec<Hit> = hits.iter().skip(k).filter(|h| explains(h)).take(wanted.saturating_sub(in_top)).cloned().collect();
+    tracing::debug!(pool = hits.len(), in_top, extra = extra.len(), kinds = ?opts.kinds, "search fusion");
     hits.truncate(k);
+    hits.extend(extra);
     Ok(hits)
 }
 

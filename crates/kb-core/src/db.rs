@@ -5,6 +5,15 @@ use sqlx::postgres::PgPoolOptions;
 pub async fn connect(url: &str) -> Result<PgPool> {
     PgPoolOptions::new()
         .max_connections(8)
+        // Filtered vector searches (language, document kind) would otherwise only see the ~40
+        // nearest chunks of the whole index and drop those that don't match the filter
+        .after_connect(|conn, _meta| {
+            Box::pin(async move {
+                sqlx::query("SET hnsw.iterative_scan = strict_order").execute(&mut *conn).await?;
+                sqlx::query("SET hnsw.ef_search = 100").execute(&mut *conn).await?;
+                Ok(())
+            })
+        })
         .connect(url)
         .await
         .with_context(|| format!("connecting to {url}"))

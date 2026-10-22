@@ -1,0 +1,589 @@
+[
+  {
+    "q": "Wie viel Verteidigung gibt der Große Graben?",
+    "level": "easy",
+    "answer": "Der **Große Graben** (GF) gibt **10 Verteidigung**, sobald er gebaut ist. Er kostet 70 AP, braucht keine Ressourcen und setzt die Verstärkte Stadtmauer voraus [1].\n\nDanach kann die Stadt ihn bis Stufe 5 weiterentwickeln. Die Karte nennt für jede Stufe diesen Bonus [1]:\n- Stufe 1: +20\n- Stufe 2: +45\n- Stufe 3: +75\n- Stufe 4: +110\n- Stufe 5: +150\n\nIch vermute, dass die Zahl jeweils den gesamten Zusatzbonus auf dieser Stufe angibt und sich nicht aufaddiert. Dann hättest du auf Stufe 5 etwa 10 + 150 = **160 Verteidigung**. Die Karte sagt das aber nicht eindeutig, also bitte nicht als sicher ansehen.\n\nEine Weiterentwicklung kostet weder AP noch Ressourcen. Die Bürger stimmen einmal am Tag ab, und kurz vor Mitternacht wird die Weiterentwicklung mit den meisten Stimmen gebaut. Normalerweise gibt es nur eine pro Tag [2].\n\nDer Graben schaltet außerdem weitere Bauten frei: Buddelgruben, Fallgruben, Pfahlgraben und Wassergraben [1].",
+    "sources": [
+      "card:building:small_gather_#00:de",
+      "help:daily_upgrades:de"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Base defense of 10 points",
+          "status": "covered"
+        },
+        {
+          "fact": "Daily upgrades raise it, up to 160 defense at level 5",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts are covered: base 10 and 160 at level 5. The answer hedges only on its interpretation and gets the right result. The extra details do not conflict with the reference facts."
+    },
+    "answer_cost_usd": 0.038911,
+    "latency_s": 9.182292
+  },
+  {
+    "q": "Combien de PA faut-il pour construire l'Atelier ?",
+    "level": "easy",
+    "answer": "La construction de l'**Atelier** coûte **25 PA** [1].\n\nIl faut aussi ces ressources : **8× Ferraille** et **10× Planche tordue**. Il est disponible dès le départ, sans plan [1].\n\nÀ savoir :\n- Une fois construit, l'Atelier peut être amélioré chaque jour, jusqu'au niveau 5. Chaque niveau réduit le coût en PA de **tous** les chantiers : −6 %, −12 %, −18 %, −25 % puis −35 %. Aux niveaux 4 et 5, il augmente aussi le rendement des réparations de 1 puis 2 points [1].\n- Le Technicien peut payer les chantiers avec ses **Points de Chantier (PC)**. Pour s'en servir, il doit lui rester au moins 1 PA [2].\n- Ces 25 PA sont le coût par défaut. Le coût en PA peut varier selon le niveau de difficulté des chantiers de la ville [3].",
+    "sources": [
+      "card:building:small_refine_#00:fr",
+      "help:tech:fr",
+      "summary:src/Entity/Building.php:Building::getPrototypeAP"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "25 AP",
+          "status": "covered"
+        },
+        {
+          "fact": "Also needs 8 wrought iron and 10 twisted planks",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts are covered: 25 AP, plus 8 Ferraille (wrought iron) and 10 twisted planks. The extra details do not contradict any reference fact."
+    },
+    "answer_cost_usd": 0.033026,
+    "latency_s": 4.5269794
+  },
+  {
+    "q": "What can I get by opening a toolbox?",
+    "level": "easy",
+    "answer": "Opening a Toolbox gives you one item from this list. The numbers are the share of all finds [1]:\n\n- Pharmaceutical product: 25%\n- Explosives: 19%\n- Mechanical parts: 17%\n- Duct tape: 13%\n- Copper pipe: 13%\n- Battery: 12%\n\n**How to open it** [1]:\n- **Most jobs:** you need a box-opening tool in your bag, and your hands can't be wounded.\n- **Technician:** you can open it with a tool. If you have no tool, you can open it by spending 1 Construction Point instead.\n\nThe Toolbox is a heavy item. You can also use it during the night watch for 5 defense [1].\n\nNote: I took the item names from the card's internal ids. They should match the usual English names, but I didn't check each item's card.",
+    "sources": [
+      "card:item:chest_tools_#00:en"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Possible contents: battery, mechanical parts, duct tape, copper pipe, pharmaceutical products, semtex",
+          "status": "covered"
+        },
+        {
+          "fact": "Pharmaceuticals are the most likely result (about 25%)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "All the contents are listed; 'Explosives' matches semtex. Pharmaceuticals come out as the most likely result at 25%."
+    },
+    "answer_cost_usd": 0.036706,
+    "latency_s": 4.150288
+  },
+  {
+    "q": "What does the Manipulator hero skill do?",
+    "level": "easy",
+    "answer": "In MyHordes, **Manipulator** is a legacy hero skill that unlocks after **3 hero days**. **Twice per game**, it lets you delete an entry from the town register: click the icon next to the line you want to remove [1].\n\n- People mostly use it to hide their tracks, for example a register line that shows you taking something from the bank.\n- The later skill **Treachery** (unlocked at **211 hero days**) raises the limit from **2 to 4** deletions per game [2].",
+    "sources": [
+      "card:heroskill:manipulator:en",
+      "card:heroskill:treachery:en"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Lets you falsify (make unreadable) entries in the town register",
+          "status": "covered"
+        },
+        {
+          "fact": "Twice per town",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Gets twice per town right. Describes the effect as deleting entries, while the reference says they are falsified/made unreadable; that is close enough to count as covered."
+    },
+    "answer_cost_usd": 0.019576,
+    "latency_s": 3.018616
+  },
+  {
+    "q": "What does the Tamer job do?",
+    "level": "medium",
+    "answer": "The Tamer (players also call it \"APPRI\" or \"BICHON\") is a hero job. You start with a Three-legged Labradoodle, and its whole point is the dog [1]. The job has no digging bonus (+0%) [1].\n\n**What the dog can do:**\n- **Send to the Bank / Send to the Chest:** while you're outside, the dog carries everything in your rucksack back to town. It goes either to the bank or to your own chest, if the chest has enough room [2].\n  - A normal dog can't carry **heavy items**.\n  - Nothing happens if the town gates are closed or your rucksack is empty.\n- **Feed:** give it a Steak and it becomes a **Well fed Labradoodle**. In that state it can also take back loads that include heavy items [2, 3].\n- **Protects you:** used inside town, the dog gets ready to protect your life. A well fed dog has this action [3].\n- **Bury you:** used outside, it buries you for camping. It needs 1 AP, camping must be on in your town, and you can't already be hidden or buried [3].\n\nAfter the Protect or Bury action, the dog turns into the **Tired Labradoodle** [3].\n\nThe dog's action menu also has sections called Fetch, Steal and Guard. My documents only list their names and don't say what they do [4].",
+    "sources": [
+      "card:profession:tamer:en",
+      "card:item:tamed_pet_#00:en",
+      "card:item:tamed_pet_drug_#00:en",
+      "summary:src/Hooks/ItemTargetRendererHooks.php:ItemTargetRendererHooks::hookTamerDogPopup"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "The Tamer has a dog that can carry the contents of their rucksack back to town from anywhere in the World Beyond, once a day",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "The answer covers carrying the rucksack contents back to town from outside. It does not state the once-a-day limit, and it adds a lot of extra detail."
+    },
+    "answer_cost_usd": 0.031331,
+    "latency_s": 6.5274787
+  },
+  {
+    "q": "Comment devenir chaman ?",
+    "level": "medium",
+    "answer": "Il y a deux façons d'être Chaman, selon la ville :\n\n**1. Le Chaman élu (rôle)**\n- La ville doit d'abord construire la **Source Purificatrice d'Âme**.\n- Une assemblée citoyenne a alors lieu : il y a un débat, puis un vote, et le citoyen jugé le plus « qualifié » reçoit le titre de Chaman [1] [2].\n- Si le Chaman meurt, une nouvelle assemblée désigne son remplaçant [1].\n- Une fois élu, il dispose d'actions spéciales qu'il paie avec ses points de charlatanisme (PM), qui se rechargent chaque jour [1].\n\n**2. Le Chaman métier**\n- Le Chaman existe aussi comme **métier de héros**, que l'on choisit au début de la partie.\n- Il commence avec un Uniforme de citoyen et un Masque Voodoo, et n'a pas de bonus de fouille [3].\n- Il voit où se trouvent les âmes des citoyens morts récemment [3]. En revanche, il ne distingue pas les âmes torturées des autres [4].\n\nD'après le glossaire des joueurs, le Chaman a 5 PM par jour [5]. Avec ces points, il peut :\n- soigner certains états d'un joueur (2 PM) ;\n- faire tomber la pluie (3 PM) ;\n- fabriquer une potion chamanique (1 PM et une gourde). Cette potion protège les citoyens quand ils transportent une âme torturée.\n\nMes documents ne disent pas quelle version existe dans quel type de ville.",
+    "sources": [
+      "help:shaman:fr",
+      "card:role:shaman:fr",
+      "card:profession:shaman:fr",
+      "help:lost_souls:fr",
+      "glossary:fr:action"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "The shaman role is given by a vote of the citizens",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Covers vote mechanism; extra details unverified but don't contradict the fact."
+    },
+    "answer_cost_usd": 0.029526,
+    "latency_s": 6.826422
+  },
+  {
+    "q": "Can a ghoul drink water?",
+    "level": "medium",
+    "answer": "**Yes, but it hurts them.** Ghouls can't use the normal \"Drink\" actions, which are blocked for the ghoul role. They get a separate ghoul version instead:\n\n- **What happens:** drinking water **wounds** the ghoul and uses up the water. For a Water Cooler Bottle, one ration is used. It gives **no AP** and doesn't quench thirst like it does for normal citizens [1] [2].\n- **Once a day:** the ghoul action has the same \"already drank once today\" check as normal drinking [2].\n- **No thirst at all:** ghouls never become thirsty, so they can't die of dehydration. Water is useless to them anyway [3].\n\nWhat a ghoul has to manage is **hunger**, which it lowers by devouring:\n- **A living citizen:** hunger −65, AP refilled to max +1, and it picks up the victim's drugged, addicted or drunk status.\n- **A corpse in a home (in town only):** hunger −10.\n\nIn town, the chance that the attack gets seen and publicly logged depends on how many other citizens are in town. Outside, attacks are always logged [4].\n\n**In short:** a ghoul *can* drink, but it only gets hurt. Keep the water for the others, which also helps you blend in.",
+    "sources": [
+      "card:item:water_cup_#00:en",
+      "card:item:water_can_3_#00:en",
+      "summary:src/Service/CitizenHandler.php:CitizenHandler::increaseThirstLevel",
+      "summary:src/Controller/InventoryAwareController.php:InventoryAwareController::generic_devour_api"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "A ghoul can drink a water ration but it inflicts a wound",
+          "status": "covered"
+        },
+        {
+          "fact": "The ghoul gets none of the normal benefits (no AP restored)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts covered. Extra details on devouring and other topics are unverified, but they don't contradict either fact."
+    },
+    "answer_cost_usd": 0.031476,
+    "latency_s": 6.59613
+  },
+  {
+    "q": "Que se passe-t-il si je suis infecté ?",
+    "level": "medium",
+    "answer": "Quand tu es **Infecté(e)** :\n\n- **Risque de mort à minuit** : juste avant l'attaque, tu as **50 % de chances de mourir** de l'infection en ville normale. En Pandémonium, c'est **75 %** [1] [2]. Si tu meurs ainsi, ton cadavre ne se relève pas en zombie [3].\n- Le statut **reste après la nuit** : il ne s'efface pas tout seul [4].\n- **Veille de nuit** : tu as **-15 de défense** et **+10 % de risque de mourir** pendant ta veille [4].\n- **Atténuation** : si tu as aussi le statut « good_smell » (je n'ai pas vérifié son nom en jeu), ton risque baisse de 25 % [3].\n- **Protection totale** : certaines protections de héros t'évitent cette mort. Les goules ne peuvent pas être infectées [3] [5].\n\n**Comment s'en sortir** : le jeu conseille de prendre des **médicaments adaptés** [4]. Une fois **Immunisé(e)**, tu ne peux plus être infecté, mais seulement jusqu'à la fin de l'attaque suivante [6] [5]. Mes documents ne disent pas quels objets donnent l'immunité ou guérissent l'infection.",
+    "sources": [
+      "rule:default:modifiers",
+      "rule:panda:diff",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_status",
+      "card:status:infection:fr",
+      "summary:src/Service/CitizenHandler.php:CitizenHandler::inflictStatus",
+      "help:health:fr"
+    ],
+    "tool_calls": [
+      "search({\"k\":3,\"kinds\":[\"rule\"],\"query\":\"infect death chance modifier\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "An infection can kill you during the night: 50% chance of death (75% in hardcore/Pandemonium towns)",
+          "status": "covered"
+        },
+        {
+          "fact": "It can be treated by taking the right drugs (medicine)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts covered (50%/75% death chance, medicine cure). The extra details are plausible and not contradicted."
+    },
+    "answer_cost_usd": 0.0519234,
+    "latency_s": 10.267105
+  },
+  {
+    "q": "What happens if I don't drink for a day?",
+    "level": "medium",
+    "answer": "Skipping water makes your thirst get worse at each new day:\n\n1. **First day without drinking → Thirsty.** If you haven't drunk by the time the day changes, you wake up Thirsty. Long walks in the desert can also make you thirsty. On night watch it gives −5 defense [1] [2]\n2. **Still no water → Dehydrated!** This is critical. On watch it gives −10 defense and adds 3% to your chance of dying [3].\n3. **Dehydrated when the next day starts → you die.** You die of dehydration before the zombie attack, and that last day doesn't count for soul points [4] [5].\n\n**How to fix it:** drink water while Thirsty or Dehydrated. That removes the status, and if you haven't drunk yet today you also get your AP back [6].\n\n**Exceptions:**\n- Ghouls don't get thirsty and can't drink water.\n- Some hero survival abilities protect you from thirst [2].",
+    "sources": [
+      "card:status:thirst1:en",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage3_status",
+      "card:status:thirst2:en",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_status",
+      "help:death_and_soul_points:en",
+      "card:item:water_#00:en"
+    ],
+    "tool_calls": [
+      "search({\"k\":4,\"lang\":\"en\",\"query\":\"thirsty dehydrated status death from dehydration\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "You become thirsty, and if you still do not drink you become dehydrated",
+          "status": "covered"
+        },
+        {
+          "fact": "Dehydration is deadly if not treated",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts covered; extra details are plausible and don't contradict the reference facts."
+    },
+    "answer_cost_usd": 0.0505974,
+    "latency_s": 7.651902
+  },
+  {
+    "q": "What is the difference between small towns and normal towns?",
+    "level": "medium",
+    "answer": "Small towns (\"Non-Distant Regions\") are the easier, beginner-friendly town type. Compared with normal towns:\n\n**Map & ruins**\n- The map is 12–14 squares wide (normal: 25–27) [1] [2].\n- 7 ruins instead of 20, and no explorable ruin [1].\n- Blueprint boxes and firework parts can spawn as close as 3–4 km from town [1].\n\n**Easier play**\n- Some starting constructions are already built, including the Workshop and the Watchtower [1].\n- Citizens are protected from attacks by other citizens [1].\n- Automatic ghoul infection starts on day 15 instead of day 5 [1].\n- Watchtower estimates work differently [1].\n- No night mode and no shamans. A few soul-related constructions are disabled [1].\n\n**Rewards & ranking**\n- Small towns don't count in season rankings [3].\n- Players with more than 100 Soul Points only get rewards and distinctions if the town reaches day 8 [4].\n- You can earn the Spiritual Guide title: help a town where at least 50% of citizens have under 100 Soul Points survive past day 8 [4] [1].",
+    "sources": [
+      "rule:small:diff",
+      "card:town:small:en",
+      "help:seasons_and_rankings:en",
+      "help:towns_in_nondistantregions:en"
+    ],
+    "tool_calls": [
+      "get_document({\"key\":\"rule:small:diff\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Small towns have no shaman role",
+          "status": "covered"
+        },
+        {
+          "fact": "Night mode is disabled in small towns",
+          "status": "covered"
+        },
+        {
+          "fact": "Small towns have no explorable ruin",
+          "status": "covered"
+        },
+        {
+          "fact": "Small towns do not count for the season ranking",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "All four facts are covered. The extra details are plausible and do not conflict with the reference facts."
+    },
+    "answer_cost_usd": 0.0421046,
+    "latency_s": 8.510472
+  },
+  {
+    "q": "What do I get when I dismantle a broken electrical appliance in the workshop?",
+    "level": "medium",
+    "answer": "When you dismantle a **Broken Electronic Device** in the Workshop, you get **one random item** from this list [1]:\n\n- Electronic component: 23%\n- Handful of nuts and bolts: 18%\n- Battery Launcher 1-ITF (empty): 16%\n- Battery: 15%\n- Radius Radar Beacon: 14%\n- Compact detonator: 14%\n\n**Technicians** don't have to gamble. They get a separate dismantle option for each item, so they can choose exactly which one they get [1].\n\n**Cost:** a Workshop conversion normally costs 3 AP. It costs 1 AP less with a saw in your inventory, and 1 AP less if the town has built the Factory. The device is taken from the bank and the result goes to the bank [2].",
+    "sources": [
+      "card:item:electro_box_#00:en",
+      "summary:src/Service/ActionHandler.php:ActionHandler::execute_recipe"
+    ],
+    "tool_calls": [
+      "find_entity({\"lang\":\"en\",\"name\":\"broken electrical appliance\"})",
+      "get_document({\"key\":\"card:item:electro_box_#00:en\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Possible results: battery, empty battery launcher, electronic component, mechanical parts (screws and nuts), radius radar beacon, detonator",
+          "status": "covered"
+        },
+        {
+          "fact": "Electronic component is the most likely (about 23%)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Full list and the most likely result are both covered. Extra details (Technician option, AP costs) are not in the facts but contradict nothing."
+    },
+    "answer_cost_usd": 0.037499,
+    "latency_s": 7.10208
+  },
+  {
+    "q": "What is the Scavenger's digging bonus?",
+    "level": "medium",
+    "answer": "Scavengers (Fouineur) get a **+20% digging bonus** [1]. The other jobs I checked have none. For example, the Scout has +0% [2].\n\n**When digging in a zone**\n- The bonus is added to the zone's base dig chance, but only if the zone isn't depleted. A depleted zone uses its own lower chance, with no job bonus.\n- Some changes are applied after the bonus:\n  - −10% at night\n  - +10% if you camped\n  - halved by the wound status that can halve digging\n  - −20% when drunk\n  - +2.5% per scout level of the zone\n- The final chance is capped between 0 and 100% [3].\n\n**In explorable ruins and building searches**\n- The same bonus is added to the chance when you search a ruin room or scavenge a building [3].\n\n**Map perks**\n- Scavengers see whether nearby discovered zones still have items to dig up.\n- They also see whether a zone is force-regenerated [4].\n\nThey start with a Small Spade [1].\n\nThese details come from automatic summaries of the game code. I didn't check them against the code itself.",
+    "sources": [
+      "card:profession:collec:en",
+      "topic:scouts",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "summary:src/Service/Actions/Game/RenderMapAction.php:RenderMapAction::__invoke"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "+20% chance to find something when digging",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "The core fact (+20%) is covered. The extra details can't be verified, but none of them contradicts the reference."
+    },
+    "answer_cost_usd": 0.025251,
+    "latency_s": 6.2821326
+  },
+  {
+    "q": "What is the chance to find something when digging in a depleted zone?",
+    "level": "hard",
+    "answer": "In a **depleted zone** the base chance per dig is **35%**. In a zone that still has digs it is 60% [1].\n\nWhat changes it on a depleted zone:\n- **Job dig bonus:** doesn't apply. It is only added when the zone still has digs [2].\n- **Night:** −10%. This drops to −2.5% if an item that protects against the night penalty is on the zone floor. Novelty Lamps remove it completely [same].\n- **Statuses:** the camper bonus (+10%), the eye injury (chance halved) and drunk (−20%) don't count on depleted zones [same].\n- **Scout level of the zone:** +2.5% per level, up to +7.5% at level 3. This one does apply on depleted zones [1].\n- **Limits:** the final chance always stays between 10% and 90% [3].\n- **Zone control:** if the zombies outnumber the zone's control points, nobody digs at all [same].\n\nIn a depleted zone you also roll on the \"empty zone\" item table, not the normal one [3].\n\nThe 35% and 60% are the default town settings, so custom towns can use other values. These numbers come from the knowledge base summaries. I haven't checked them in the source code.",
+    "sources": [
+      "topic:scouts",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "summary:src/Service/ZoneHandler.php:ZoneHandler::updateZone"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "35% base chance in a depleted zone",
+          "status": "covered"
+        },
+        {
+          "fact": "60% base chance in a non-depleted zone",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both base chances are stated correctly. The extra details are not part of the reference, and nothing in them contradicts a fact."
+    },
+    "answer_cost_usd": 0.031031,
+    "latency_s": 8.720464
+  },
+  {
+    "q": "Quelle est la probabilité de mourir en veille ?",
+    "level": "hard",
+    "answer": "Pour une veille, le risque de mort de base est de **8 %**. Il augmente ensuite avec la fatigue, puis divers bonus et malus le modifient [1].\n\n**Fatigue** (selon le nombre de veilles faites les jours précédents) :\n- Cas normal : +0 / 1 / 4 / 9 / 20 / 30 / 42 / 56 / 72 / 90 %.\n- Gardien (veilleur « pro ») : la hausse est plus lente : 0 / 1 / 4 / 9 / 15 / 20 / 30 / 40 / 50 / 60 / 75 / 90 %.\n\nExemple : un non-gardien à sa 5e veille a 8 + 20 = 28 % de risque.\n\n**Ce qui baisse le risque :**\n- chaque bain à la piscine : −1 %, mais jamais sous les 8 % de base ;\n- certains objets dans le sac ;\n- le rôle de goule : −5 % ;\n- la construction small_watchmen_#02 : −5 % (nom en jeu non vérifié) ;\n- le chemin de ronde au niveau 3 : −1 %.\n\n**Ce qui l'augmente :**\n- certains états, comme les blessures ;\n- les arroseurs (sprinklers) : +4 %.\n\n**Pandémonium :** le risque final est **doublé**.\n\n**Blessure et terreur :** le même calcul donne aussi vos chances d'être blessé ou terrorisé. Elles sont un peu plus élevées que le risque de mort.\n\nLe jeu affiche une phrase d'humeur qui résume votre niveau de risque (≤15 %, ≤30 %…) [2].",
+    "sources": [
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getNightWatchDeathChances",
+      "help:the_watchmen:fr"
+    ],
+    "tool_calls": [
+      "get_source({\"end_line\":130,\"path\":\"src/EventListener/Game/Citizen/CitizenChanceQueryListener.php\",\"start_line\":64})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Base death chance of 8% per watch",
+          "status": "covered"
+        },
+        {
+          "fact": "The chance increases with the number of previous night watches (fatigue)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "The two facts are covered: the 8% base chance and the increase from fatigue. The extra details cannot be checked against the facts, but none of them contradict either fact."
+    },
+    "answer_cost_usd": 0.055483,
+    "latency_s": 10.606771
+  },
+  {
+    "q": "Does night time change anything when digging?",
+    "level": "hard",
+    "answer": "Yes. At night, digging in the desert is a bit harder [1]:\n\n- **Desert digging:** your chance to find something drops by **10 percentage points**. This applies to empty (depleted) zones too.\n- **Scavenging a ruin building:** same **−10 points**.\n- **Exploring an explorable ruin:** no night penalty.\n- **Lowering it:** if an item that counters the night is lying on the zone's floor, the penalty is cut to a quarter (**−2.5 points**). The game code also has a way to waive or adjust the penalty (it gets the distance passed to it), but I couldn't open that part. My documents say Novelty Lamps cancel it, but I couldn't confirm that in the code.\n- Every dig chance is kept between **10% and 90%** [2].\n\nTown type matters. The penalty only applies when the town has night mode turned on. Small towns have it off, so night doesn't affect digging there [3]. In other town types, the time of each dig is what counts, so automatic digs that happen after nightfall also get the penalty [2].",
+    "sources": [
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "summary:src/Service/ZoneHandler.php:ZoneHandler::updateZone",
+      "topic:scouts"
+    ],
+    "tool_calls": [
+      "get_source({\"end_line\":388,\"path\":\"src/EventListener/Game/Citizen/CitizenChanceQueryListener.php\",\"start_line\":326})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Yes, digging success is lower at night",
+          "status": "covered"
+        },
+        {
+          "fact": "A torch or lamp reduces the night penalty",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts are covered: digging is harder at night, and a night-countering item (lamp) reduces the penalty. The specific numbers are extra details that don't contradict the facts."
+    },
+    "answer_cost_usd": 0.038489800000000005,
+    "latency_s": 8.33898
+  },
+  {
+    "q": "ca sert a quoi le gros trou autour de la ville",
+    "level": "casual",
+    "answer": "Tu parles du **Grand fossé** (souvent appelé « GF » par les joueurs). C'est un chantier de défense permanent : il ne disparaît pas après l'attaque [1].\n\n- **Coût :** aucune ressource, seulement 70 PA. Il faut d'abord avoir construit la Muraille.\n- **Défense :** 10 points au départ seulement, mais on peut l'améliorer en votant pour lui dans les améliorations du jour, jusqu'au niveau 5 :\n  - niveau 1 : 30\n  - niveau 2 : 55\n  - niveau 3 : 85\n  - niveau 4 : 120\n  - niveau 5 : 160 points de défense\n- **Ouvre d'autres chantiers :** il débloque les Douves, la Fosse à pieux, les Oubliettes et les Galeries des Fouineurs. La description du jeu le dit : « on pourra le remplir avec un tas de choses pour le rendre encore plus efficace ».\n\nAu début il rapporte peu, mais il devient très rentable sur une longue partie si la ville l'améliore régulièrement.",
+    "sources": [
+      "card:building:small_gather_#00:fr"
+    ],
+    "tool_calls": [
+      "get_document({\"key\":\"card:building:small_gather_#00:fr\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "It is the Great Ditch (Grand fossé), a defensive construction",
+          "status": "covered"
+        },
+        {
+          "fact": "10 defense points, upgradable up to 160",
+          "status": "covered"
+        },
+        {
+          "fact": "Costs 70 AP and requires the Defensive Wall",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "All three facts are covered. The extra details about upgrade levels and unlocked constructions don't conflict with any reference fact."
+    },
+    "answer_cost_usd": 0.035978800000000005,
+    "latency_s": 7.7112384
+  },
+  {
+    "q": "how many AP for the first wall",
+    "level": "casual",
+    "answer": "The first wall is the **Defensive Wall** (Muraille / Verstärkte Stadtmauer). Here's what it takes [1]:\n\n- **25 AP** in every town mode (normal, easy and Pandemonium)\n- **Resources:**\n  - Normal: 4× Wrought Iron + 8× Twisted Plank\n  - Easy and Pandemonium: 5× Wrought Iron + 10× Twisted Plank\n- **Defense:** +30. No parent construction needed.\n\nIt unlocks several upgrades, such as Wall Upgrade v2 (40 AP, +20 defense), Armour Plating, Great Pit and Barbed Wire [1] [2].\n\nIf you're banished, you can only work on it while the Ministry of Slavery is built. In that case your AP count 1.5× [3].",
+    "sources": [
+      "card:building:small_wallimprove_#00:en",
+      "card:building:small_wallimprove_#01:en",
+      "summary:src/Controller/REST/Game/Town/Core/BuildingController.php:BuildingController::participate"
+    ],
+    "tool_calls": [],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "The Defensive Wall costs 25 AP",
+          "status": "covered"
+        },
+        {
+          "fact": "It gives 30 defense",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts are covered. The extra details are unverified but contradict nothing."
+    },
+    "answer_cost_usd": 0.023096,
+    "latency_s": 3.7490773
+  },
+  {
+    "q": "est-ce qu'il est vrai que les éclaireurs peuvent renforcer les fouilles",
+    "level": "hard",
+    "answer": "Oui, mais seulement de façon indirecte.\n\n- **Pour lui-même :** l'Éclaireur n'a aucun bonus de fouille personnel. Son bonus de fouille est de +0 % [1]. Le Fouineur, lui, en a un [2].\n- **Pour la case :** l'Éclaireur est le seul métier qui laisse des marques de passage sur les cases qu'il visite [3]. Ces marques font monter le « niveau d'éclaireur » de la case. Chaque niveau ajoute **+2,5 %** aux chances de réussite des fouilles dans le désert, pour **tous** les citoyens qui fouillent cette case. Le bonus s'ajoute à la fin du calcul, après le malus de nuit et les effets de statut (campeur +10 %, ivresse −20 %, blessure aux yeux). Il compte aussi sur une case épuisée [4]. J'ai vérifié ce chiffre dans le code.\n- **Limites :** ce bonus ne vaut que pour les fouilles dans le désert. Il ne s'applique ni aux fouilles dans les ruines explorables ni aux fouilles de bâtiments. Le résultat final de chaque fouille reste de toute façon bloqué entre 10 % et 90 % [5].\n\nMes documents ne disent pas comment ce niveau monte case par case, ni s'il a un maximum.",
+    "sources": [
+      "card:profession:hunter:fr",
+      "help:collec:fr",
+      "topic:scouts",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "summary:src/Service/ZoneHandler.php:ZoneHandler::updateZone"
+    ],
+    "tool_calls": [
+      "search({\"k\":5,\"kinds\":[\"summary\",\"topic\"],\"query\":\"éclaireur bonus fouille chance de trouver objet\"})",
+      "get_source({\"end_line\":365,\"path\":\"src/EventListener/Game/Citizen/CitizenChanceQueryListener.php\",\"start_line\":345})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "Yes, indirectly: scout visits raise a zone's scout level (up to 3)",
+          "status": "missing"
+        },
+        {
+          "fact": "Each scout level adds 2.5% dig chance for everyone digging in that zone (max +7.5%)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "partial",
+      "overconfident": false,
+      "comment": "The indirect mechanism and the +2.5% per level are correct, but the answer says it does not know the maximum (3 levels / +7.5%)."
+    },
+    "answer_cost_usd": 0.06561260000000001,
+    "latency_s": 11.528802
+  },
+  {
+    "q": "quel est le meilleur spot de camping ?",
+    "level": "casual",
+    "answer": "Selon le bonus de camping des bâtiments, le meilleur spot est l'**Abri anti-atomique** [1] :\n- **Bonus de camping : 50**, le plus élevé de tous les bâtiments\n- On le trouve entre 10 et 13 km de la ville\n- **5 places** de campeurs\n\nViennent ensuite :\n- **Ancien commissariat** : bonus 30, entre 6 et 9 km, 4 places. Bien pour camper près de la ville [2]\n- **Tente d'un citoyen** : bonus 30, entre 12 et 15 km, mais **1 seule place** [3]\n- Bonus 20 : Avant-poste militaire (5 places), Tranchée aménagée (entre 5 et 8 km, 2 places), Char d'assaut en panne et Bar des illusions perdues\n\nÀ savoir :\n- Le niveau de la case = bonus du bâtiment + améliorations du campement faites sur la zone. Le nombre de zombies sur la case compte aussi, avec des avertissements à partir de 5 et de 11 zombies. Une fois le bâtiment plein, la case ne vous donne plus ce bonus [4].\n- Le bonus que donnent les objets, les améliorations du campement et la tombe est plafonné [5].\n- On ne peut jamais camper aux portes de la ville [5].\n- Vos chances de survie dehors ne dépassent pas 90 %, sauf pour l'**Ermite** qui peut atteindre 100 % [6].",
+    "sources": [
+      "card:ruin:bunker:fr",
+      "card:ruin:police:fr",
+      "card:ruin:tent:fr",
+      "summary:src/Controller/BeyondController.php:BeyondController::desert",
+      "help:extreme_camping:fr",
+      "help:survivalist:fr"
+    ],
+    "tool_calls": [
+      "list_entities({\"kind\":\"ruin\",\"lang\":\"fr\",\"limit\":8,\"sort_by\":\"camping\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "The Nuclear Bunker (Abri anti-atomique, nicknamed AAA) has the highest camping bonus of all ruins: 50",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Correctly identifies Abri anti-atomique with bonus 50, the highest."
+    },
+    "answer_cost_usd": 0.0388052,
+    "latency_s": 8.807603
+  },
+  {
+    "q": "is the AAA a good place to camp?",
+    "level": "casual",
+    "answer": "Yes, it's the best one. The AAA (Nuclear Bunker) has the **highest camping bonus of any ruin in the game: 50**. The next best are the Old Police Station and the Citizen's Tent at 30, then a few ruins at 20, such as the Army Outpost, the Equipped Trench and the Broken-down Tank [1] [2] [3].\n\nOther useful details:\n- **Distance:** it spawns 10–13 km from town, so getting there and back is a real trip [1].\n- **Capacity:** it's listed with a capacity of 5, compared with 1 for the Tent [1] [3]. I couldn't confirm what that number does exactly, but it probably means up to 5 people can shelter there.\n- **Searching:** there's a 10% chance a search comes up empty. The best finds are Twinoid 500mg (18% of finds), Metal Chests, Radius Radar Beacons and Repair Kits [1].\n\nThe ruin bonus is only one part of your camping chances. Other factors also count, like how many times you've already camped, your job, zombies in the zone and campsite improvements. I didn't check those here. Camping can also be turned off in some town settings.",
+    "sources": [
+      "card:ruin:bunker:en",
+      "card:ruin:police:en",
+      "card:ruin:tent:en"
+    ],
+    "tool_calls": [
+      "list_entities({\"kind\":\"ruin\",\"limit\":8,\"sort_by\":\"camping\"})"
+    ],
+    "judgement": {
+      "facts": [
+        {
+          "fact": "AAA is the Nuclear Bunker (Abri anti-atomique)",
+          "status": "covered"
+        },
+        {
+          "fact": "It has the highest camping bonus of all ruins (50)",
+          "status": "covered"
+        }
+      ],
+      "verdict": "correct",
+      "overconfident": false,
+      "comment": "Both facts are covered. The extra details don't contradict the facts, and the uncertain claim about capacity is hedged."
+    },
+    "answer_cost_usd": 0.0314616,
+    "latency_s": 8.069952
+  }
+]
