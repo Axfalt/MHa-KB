@@ -39,7 +39,7 @@ Sources of wounds:
 | Head (`wound1`) | Your messages can be distorted with random groans [18] |
 | Hand (`wound2`) | No bare-hand zombie attack [8]. No weapon attacks, safe, or opening a First Aid Kit [19] [20] [21]. No repairs [22] |
 | Arm (`wound3`) | Cannot build or repair constructions [23] |
-| Leg (`wound4`) | When you are escorted, each move has a 20% chance to fail; the move costs 1 point and the whole group stays put. In the code this only applies to escorted citizens, not to the leader [8] |
+| Leg (`wound4`) | Each of your own moves has a 20% chance to fail: you lose 1 AP and stay put. When you lead an escort, each escorted citizen with a leg wound also rolls 20%, and a failure stops the whole group [8] |
 | Eye (`wound5`) | Desert dig chance ×0.5. Building search and explorable-ruin dig chance −0.2 [11] |
 | Foot (`wound6`) | No specific effect found |
 

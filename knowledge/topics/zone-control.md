@@ -115,6 +115,7 @@
 
 ## What changes it
 - **Riot Shield (`shield_#00`):** +2 CP if unbroken. Strapping it on your back turns it into `shield_off_#00`, which no longer counts [3] [19].
+- **Car Door (`car_door_#00`):** the only item with the `defence_cp` property: +1 CP if unbroken. Carrying several gives no more.
 - **`defence_cp` items:** +1 CP if you carry at least one unbroken item with this property [3].
 - **Guide role:** + the number of citizens in the zone. It also lets the citizen lead escorts [3] [5].
 - **Hero skill Healthy Body** (61 hero days, legacy skill): +1 CP while you stay `clean` (`props.bonus.zone_control.clean` = 1) [20].
@@ -141,7 +142,7 @@
 ## Not verified
 - **Zone-wide timers.** I could not read the escape-timer lookup code (`EscapeTimerRepository::findActiveByCitizen`). So it is unconfirmed that zone timers with no citizen attached apply to everyone in the zone. These are the 30-minute grace timer and the timers from escape items.
 - **"Blocked" in item requirements.** I could not find the exact condition behind `must_be_blocked` / `must_be_blocked_hd`. It is probably "not controlled and not temporarily controlled".
-- **Which items carry `defence_cp`,** and whether the Guardian starts with the Riot Shield.
+- **Whether the Guardian starts with the Riot Shield.**
 - **Other CP sources.** I found no source in the documents for ZoneControlBonus, ZoneControlHydratedBonus or ZoneControlSoberBonus besides the default of 0.
 - **Heroic punch.** Its escape time (property HeroPunchEscapeTime, default 0; HeroPunchKills, default 2) exists, but I did not trace its effect.
 

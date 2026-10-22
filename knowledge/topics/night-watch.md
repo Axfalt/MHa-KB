@@ -87,6 +87,8 @@ All steps are in [2], in this order:
    - Pleasant aroma (`good_smell`) sets both to min(0, x − 0.25), so they become 0 or less.
 4. **Pool baths:** each bath gives −1% death, but never below the 8% base.
 5. **Items:** each item subtracts its watchimpact / 100. Items with the property `nw_impact_cumul` count once per copy; others count once per item type.
+   - Lower death chance: Riot Shield −5%, Car Door −3%, Taser −1% per copy, Hot Coffee −1% per copy.
+   - Higher death chance: lit Bedside Lamp +1% per copy, Mini Hi-Fi (on) +2% (it also gives −30 watch points).
 6. **Ghoul role:** −5%.
 7. **Statuses:** add each status's death penalty.
 8. **Buildings:**
@@ -166,8 +168,7 @@ Two more statuses only affect wound and terror:
 - Pandemonium building damage.
 
 ## Not verified
-- **Item death modifiers:** I could not find the watchimpact (death) value of each item, or which items have `nw_impact_cumul`. Item cards only show watchpoints.
-- **Very high fatigue:** the code reads the table at index min(previous watches, table length). With 10 or more earlier watches (12 or more with Pro-Watchman), that index is one past the end of the table. I could not check what that returns; it may give no fatigue at all.
+- **Very high fatigue:** the code reads the table at index min(previous watches, table length). With 10 or more earlier watches (12 or more with Pro-Watchman), that index is one past the end of the table. PHP then most likely returns nothing, so there is no fatigue at all (only the 8% base), or the calculation fails. This looks like a game bug (the cap should be the last entry, 90%); it needs a test on a dev server.
 - **Which items count without the Armory:** I could not confirm which items are "essential", for example job starting items.
 - **Pool bath counter:** I could not confirm whether it resets every day.
 - **Possible double counting:** town defense includes the watch defense for the current day. At the attack the day has already moved on, so this probably does not count the watch twice, but I did not confirm it.

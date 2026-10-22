@@ -92,12 +92,13 @@ You have a spot if the capacity is negative (unlimited) or if fewer campers hid 
 - You cannot do this at the town gate.
 - You can only install while the level is below 50, so the level can reach at most 58.
 - Improvements can stack (they are added to the level) [16].
+- The **Improve your hiding spot** action costs 1 AP and adds +5 to the zone level. It is not possible while tired, hidden or in a tomb.
 
 **Carried items.** Groundsheet `sheet_#00` and Festering Flesh `smelly_meat_#00` have the `camp_bonus` property: +5 each, only when unbroken and in your rucksack [17] [18] [3].
 
 **Camouflage vest worn (`vest_on_#00`).** The zombie penalty drops from −7 to −3 per zombie [3].
 
-**Tomb.** The `tg_tomb` status gives +8 [3]. The Labradoodle's "Bury you" action gives `tg_tomb` and hides you. The well-fed Labradoodle's "Bury and hide you" also adds +5 to the zone level, but only while the level is below 50 [19] [20].
+**Tomb.** Digging a tomb costs 1 AP and is not possible while tired; hiding is free. The `tg_tomb` status gives +8 [3]. The Labradoodle's "Bury you" action gives `tg_tomb` and hides you. The well-fed Labradoodle's "Bury and hide you" also adds +5 to the zone level, but only while the level is below 50 [19] [20].
 
 **Lighthouse (`small_lighthouse_#00`).** +25 for all citizens. It costs 30 AP, has blueprint level 3 and needs the Watchtower [21].
 

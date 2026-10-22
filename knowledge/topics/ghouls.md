@@ -129,6 +129,7 @@ Sources: [1, 2, 3, 9]
   - Ghoul mode "airborne", with begin day 3, advance 0.3 and max 0.9 [4].
   - Modifiable food ghoul chances get +3 points, for example Human Flesh goes from 5% to 8% [10].
   - Attacks cost 4 AP instead of 5 [4].
+  - The roll runs after the town day has been incremented, and the counter starts at the begin day (3). So the first airborne ghoul can appear when the town enters day 5 (30%), then 60% on day 6 and 90% from day 7.
   - Using the formula, after a new airborne ghoul the chance is 0 the next day, then 30%, 60%, and 90% from the fourth day on.
 - **Custom towns:** ghoul mode, hungry ghouls and the airborne infection values are town settings and can be changed per town [22, 25].
 
@@ -141,7 +142,6 @@ Sources: [1, 2, 3, 9]
 
 ## Not verified
 - **Traveller's Corpse:** I could not find the definition of `ghoul_5_100` (90% weight). So I don't know whether eating a corpse can turn a citizen into a ghoul or only changes hunger.
-- **Day of the airborne roll:** I did not check whether the town day used in the formula is already incremented when the night runs, so the panda percentages by day may be off by one.
 - **Food effects outside "normal":** I did not confirm that the food ghoul chances (the 3/4/5% rolls) apply unchanged in every mode other than `childtown`.
 - **Help page items:** I did not find in the code the "Brothers in Arms" charges, the unlogged entry and exit of town, or "ghouls from day one in Hardcore towns".
 - **`tg_home_clean`:** I did not find what gives this status.

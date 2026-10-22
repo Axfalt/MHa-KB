@@ -3,7 +3,7 @@
 # Town types
 
 ## In short
-MyHordes has four town types: **Small** (`small`), **Distant Region** (`remote`, which is the default class), **Pandemonium** (`panda`, the hard class) and **Private Town** (`custom`) [1]. Only Distant Region and Pandemonium count for the season ranking [2, 3]. Small towns are easier, with a 12–14 map, a head start on buildings and no shaman [4]. Pandemonium needs soul points to join (200 by default in the code) and is harder: buildings get damaged at night, defence items in the bank are destroyed, construction costs more, and ghouls appear from day 3 [5, 6]. By default, private towns give no soul points and no pictos, and their door stays locked until the town is full [7].
+MyHordes has four town types: **Small** (`small`), **Distant Region** (`remote`, which is the default class), **Pandemonium** (`panda`, the hard class) and **Private Town** (`custom`) [1]. Only Distant Region and Pandemonium count for the season ranking [2, 3]. Small towns are easier, with a 12–14 map, a head start on buildings and no shaman [4]. Pandemonium needs soul points to join (200 by default in the code) and is harder: buildings get damaged at night, defence items in the bank are destroyed, construction costs more, and citizens can turn into ghouls on their own: the first one can appear when the town enters day 5 (30% chance), then 60% on day 6 and 90% from day 7, and the count restarts after each new ghoul [5, 6]. By default, private towns give no soul points and no pictos, and their door stays locked until the town is full [7].
 
 ## How it works
 **How a town's rules are built**
