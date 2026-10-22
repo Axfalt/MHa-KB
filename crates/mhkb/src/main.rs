@@ -316,16 +316,20 @@ async fn main() -> Result<()> {
         }
         Cmd::Feedback { stubs: true, questions, .. } => eval::stubs(&pool, &questions).await?,
         Cmd::Feedback { n, .. } => {
-            let rows: Vec<(i64, chrono::DateTime<chrono::Utc>, String, String, Option<String>, Option<serde_json::Value>)> = sqlx::query_as(
-                "SELECT id, created_at, lang, question, answer, sources FROM qa_log WHERE feedback < 0 ORDER BY id DESC LIMIT $1",
+            let rows: Vec<(i64, chrono::DateTime<chrono::Utc>, String, String, Option<String>, Option<serde_json::Value>, Option<String>)> = sqlx::query_as(
+                "SELECT id, created_at, lang, question, answer, sources, feedback_comment FROM qa_log WHERE feedback < 0 ORDER BY id DESC LIMIT $1",
             )
             .bind(n)
             .fetch_all(&pool)
             .await?;
-            for (id, at, lang, question, answer, sources) in rows {
+            for (id, at, lang, question, answer, sources, comment) in rows {
                 let keys: Vec<String> = sources.as_ref().and_then(|s| s.as_array()).map(|a| a.iter().filter_map(|s| s["key"].as_str().map(str::to_string)).collect()).unwrap_or_default();
                 let answer: String = answer.unwrap_or_default().replace('\n', " ").chars().take(300).collect();
-                println!("#{id} {} [{lang}] {question}\n  sources: {}\n  {answer}\n", at.format("%Y-%m-%d %H:%M"), keys.join(", "));
+                println!("#{id} {} [{lang}] {question}", at.format("%Y-%m-%d %H:%M"));
+                if let Some(comment) = comment {
+                    println!("  remark: {}", comment.replace('\n', " "));
+                }
+                println!("  sources: {}\n  {answer}\n", keys.join(", "));
             }
         }
         Cmd::Stats => stats(&pool).await?,

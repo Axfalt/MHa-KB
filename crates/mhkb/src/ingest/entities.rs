@@ -419,8 +419,7 @@ pub fn build(export: &Path, tr: &Translations, langs: &[String], git_sha: Option
             }
             let actions = ctx.job_actions(&key, p);
             if !actions.is_empty() {
-                let _ = writeln!(c, "
-## Job abilities (actions only this job can use, or that come with its starting items)");
+                let _ = writeln!(c, "\n## Job abilities (actions only this job can use, or that come with its starting items)");
                 let mut heading = None;
                 for (action, item) in &actions {
                     if heading != Some(item) {

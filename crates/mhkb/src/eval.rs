@@ -133,10 +133,10 @@ async fn check_expectations(pool: &PgPool, questions: &[Question]) -> Result<()>
 /// hand before the stub goes into `eval/questions.yaml`.
 pub async fn stubs(pool: &PgPool, questions: &Path) -> Result<()> {
     let known: Vec<String> = load(questions, None)?.into_iter().map(|q| q.q.trim().to_lowercase()).collect();
-    let rows: Vec<(i64, String, String, Option<i16>, Option<Value>)> =
-        sqlx::query_as("SELECT id, lang, question, feedback, sources FROM qa_log ORDER BY id").fetch_all(pool).await?;
+    let rows: Vec<(i64, String, String, Option<i16>, Option<Value>, Option<String>)> =
+        sqlx::query_as("SELECT id, lang, question, feedback, sources, feedback_comment FROM qa_log ORDER BY id").fetch_all(pool).await?;
     let mut seen = known;
-    for (id, lang, question, feedback, sources) in rows {
+    for (id, lang, question, feedback, sources, comment) in rows {
         let norm = question.trim().to_lowercase();
         if seen.contains(&norm) {
             continue;
@@ -157,9 +157,12 @@ pub async fn stubs(pool: &PgPool, questions: &Path) -> Result<()> {
         println!("  lang: {lang}");
         println!("  level: casual");
         println!("  expect: [{}]", keys.join(", "));
-        println!("  facts: []");
-        println!("  note: \"qa_log #{id}{feedback}\"
-");
+        match comment {
+            // The remark usually names the wrong or missing fact: a starting point for `facts`
+            Some(c) => println!("  facts: []  # remark: {}", c.replace('\n', " ")),
+            None => println!("  facts: []"),
+        }
+        println!("  note: \"qa_log #{id}{feedback}\"\n");
     }
     Ok(())
 }

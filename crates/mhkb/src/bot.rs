@@ -100,6 +100,19 @@ fn t(lang: &str, key: &str) -> &'static str {
         ("thanks", "de") => "Danke für dein Feedback!",
         ("thanks", "es") => "¡Gracias por tu opinión!",
         ("thanks", _) => "Thanks for your feedback!",
+        // Discord limits modal titles and input labels to 45 characters
+        ("fb_title", "fr") => "Qu'est-ce qui n'allait pas ?",
+        ("fb_title", "de") => "Was war nicht in Ordnung?",
+        ("fb_title", "es") => "¿Qué estuvo mal?",
+        ("fb_title", _) => "What was wrong?",
+        ("fb_label", "fr") => "Erreur ou info manquante (facultatif)",
+        ("fb_label", "de") => "Fehler oder fehlende Info (optional)",
+        ("fb_label", "es") => "Error o dato que falta (opcional)",
+        ("fb_label", _) => "Wrong or missing info (optional)",
+        ("fb_placeholder", "fr") => "Ex. : la réponse oublie que…",
+        ("fb_placeholder", "de") => "Z. B.: Die Antwort erwähnt nicht, dass…",
+        ("fb_placeholder", "es") => "Ej.: la respuesta no menciona que…",
+        ("fb_placeholder", _) => "E.g. the answer doesn't mention that…",
         _ => "",
     }
 }
@@ -305,31 +318,74 @@ async fn dev(
 }
 
 async fn on_event(framework: poise::FrameworkContext<'_, Data, Error>, event: &serenity::FullEvent) -> Result<(), Error> {
-    let ctx = framework.serenity_context;
     match event {
         serenity::FullEvent::Ready { data_about_bot, .. } => info!("logged in as {}", data_about_bot.user.name),
         serenity::FullEvent::InteractionCreate { interaction } => {
-            let Some(component) = interaction.as_message_component() else { return Ok(()) };
-            let mut parts = component.data.custom_id.split(':');
-            let (Some("fb"), Some(id), Some(vote)) = (parts.next(), parts.next(), parts.next()) else { return Ok(()) };
-            let (Ok(id), Ok(vote)) = (id.parse::<i64>(), vote.parse::<i16>()) else { return Ok(()) };
-            sqlx::query("UPDATE qa_log SET feedback = $1, feedback_by = $2 WHERE id = $3")
-                .bind(vote)
-                .bind(component.user.id.to_string())
-                .bind(id)
-                .execute(&framework.user_data.pool)
-                .await?;
-            info!(qa_id = id, vote, "feedback");
-            let lang = locale_lang(Some(component.locale.as_str()));
-            component
-                .create_response(
-                    ctx,
-                    serenity::CreateInteractionResponse::Message(serenity::CreateInteractionResponseMessage::new().content(t(lang, "thanks")).ephemeral(true)),
-                )
-                .await?;
+            if let Some(component) = interaction.as_message_component() {
+                on_vote(framework, component).await?;
+            } else if let Some(modal) = interaction.as_modal_submit() {
+                on_comment(framework, modal).await?;
+            }
         }
         _ => {}
     }
+    Ok(())
+}
+
+/// 👍/👎 button: records the vote; a 👎 also opens a form asking what was wrong
+async fn on_vote(framework: poise::FrameworkContext<'_, Data, Error>, component: &serenity::ComponentInteraction) -> Result<(), Error> {
+    let ctx = framework.serenity_context;
+    let mut parts = component.data.custom_id.split(':');
+    let (Some("fb"), Some(id), Some(vote)) = (parts.next(), parts.next(), parts.next()) else { return Ok(()) };
+    let (Ok(id), Ok(vote)) = (id.parse::<i64>(), vote.parse::<i16>()) else { return Ok(()) };
+    sqlx::query("UPDATE qa_log SET feedback = $1, feedback_by = $2 WHERE id = $3")
+        .bind(vote)
+        .bind(component.user.id.to_string())
+        .bind(id)
+        .execute(&framework.user_data.pool)
+        .await?;
+    info!(qa_id = id, vote, "feedback");
+    let lang = locale_lang(Some(component.locale.as_str()));
+    let response = if vote < 0 {
+        let input = serenity::CreateInputText::new(serenity::InputTextStyle::Paragraph, t(lang, "fb_label"), "comment")
+            .placeholder(t(lang, "fb_placeholder"))
+            .max_length(1000)
+            .required(false);
+        serenity::CreateInteractionResponse::Modal(
+            serenity::CreateModal::new(format!("fbc:{id}"), t(lang, "fb_title")).components(vec![serenity::CreateActionRow::InputText(input)]),
+        )
+    } else {
+        serenity::CreateInteractionResponse::Message(serenity::CreateInteractionResponseMessage::new().content(t(lang, "thanks")).ephemeral(true))
+    };
+    component.create_response(ctx, response).await?;
+    Ok(())
+}
+
+/// Submitted 👎 form: stores the remark with the answer
+async fn on_comment(framework: poise::FrameworkContext<'_, Data, Error>, modal: &serenity::ModalInteraction) -> Result<(), Error> {
+    let Some(id) = modal.data.custom_id.strip_prefix("fbc:").and_then(|id| id.parse::<i64>().ok()) else { return Ok(()) };
+    let comment: String = modal
+        .data
+        .components
+        .iter()
+        .flat_map(|row| &row.components)
+        .find_map(|c| match c {
+            serenity::ActionRowComponent::InputText(input) => input.value.clone(),
+            _ => None,
+        })
+        .unwrap_or_default();
+    let comment = comment.trim();
+    if !comment.is_empty() {
+        sqlx::query("UPDATE qa_log SET feedback_comment = $1 WHERE id = $2").bind(comment).bind(id).execute(&framework.user_data.pool).await?;
+        info!(qa_id = id, "feedback comment");
+    }
+    let lang = locale_lang(Some(modal.locale.as_str()));
+    modal
+        .create_response(
+            framework.serenity_context,
+            serenity::CreateInteractionResponse::Message(serenity::CreateInteractionResponseMessage::new().content(t(lang, "thanks")).ephemeral(true)),
+        )
+        .await?;
     Ok(())
 }
 
