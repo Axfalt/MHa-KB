@@ -124,6 +124,17 @@ fn describe_atom(atom: &Value) -> String {
                 Value::Null => {}
                 Value::Bool(false) => {}
                 Value::String(s) => args.push(format!("{k}={s}")),
+                // PointType enum: name it, the number alone means nothing to a reader
+                Value::Number(n) if k == "pointType" => args.push(format!(
+                    "{k}={}",
+                    match n.as_i64() {
+                        Some(1) => "AP (action points)",
+                        Some(2) => "CP (construction points, Technician)",
+                        Some(3) => "MP (mystic points, Shaman)",
+                        Some(4) => "SP (exploration points: spent instead of AP on moves 3 km or more from town)",
+                        _ => "unknown",
+                    }
+                )),
                 other => args.push(format!("{k}={other}")),
             }
         }
