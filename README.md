@@ -99,7 +99,8 @@ Reciprocal Rank Fusion.
 ```sh
 cargo run --release -- ingest code     # PHP methods (tree-sitter) + file outlines + source snapshot + code→entity edges
 cargo run --release -- summarize       # Claude summaries of game-logic files (Batch API, cached by file hash), then indexed
-cargo run --release -- feedback        # answers that got a 👎 on Discord
+cargo run --release -- feedback        # answers that got a 👎 on Discord, with the voter's remark
+cargo run --release -- review [id]     # re-answer 👎 questions with Opus and diagnose: model, knowledge, fixed since, or fine
 ```
 
 Summaries are machine-written: the bot labels them as such, and checks numbers that only come from a summary

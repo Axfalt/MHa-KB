@@ -2,6 +2,7 @@ mod bot;
 mod dossier;
 mod eval;
 mod ingest;
+mod review;
 mod summarize;
 
 use std::path::PathBuf;
@@ -194,6 +195,19 @@ enum Cmd {
         #[arg(long, default_value = "eval/questions.yaml")]
         questions: PathBuf,
     },
+    /// Re-answer a 👎 question with a stronger model and diagnose the cause: the answering model,
+    /// or the knowledge base (calls Claude, ~$0.05 per answer)
+    Review {
+        /// qa_log id; without it, every 👎 answer not reviewed yet
+        id: Option<i64>,
+        #[arg(long, default_value = "claude-opus-5-5")]
+        model: String,
+        #[arg(long, default_value = "claude-opus-5-5")]
+        judge_model: String,
+        /// Also review answers that already have a review
+        #[arg(long)]
+        force: bool,
+    },
     /// Document and chunk counts
     Stats,
 }
@@ -331,6 +345,10 @@ async fn main() -> Result<()> {
                 }
                 println!("  sources: {}\n  {answer}\n", keys.join(", "));
             }
+        }
+        Cmd::Review { id, model, judge_model, force } => {
+            let opts = review::Options { id, model, judge_model, force };
+            review::run(&pool, &load_searcher()?, &Claude::from_env()?, &opts).await?;
         }
         Cmd::Stats => stats(&pool).await?,
     }
