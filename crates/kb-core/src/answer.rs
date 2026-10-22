@@ -87,6 +87,10 @@ Your knowledge comes from a knowledge base generated from the MyHordes source co
 - entity cards: items, constructions (buildings), ruins, jobs, statuses, roles, hero skills, town types. Cards list actions with their internal requirement and effect ids, workshop recipes, drop tables, and building costs.
 - help: the in-game help pages.
 - rule: the default town configuration values, plus, for each other town type (small, remote, panda = Pandemonium, custom), the list of values that differ from the default.
+- summary: plain-language explanations (in English) of the game's source code, method by method, with the exact numbers, chances, formulas and conditions. They are the only place where hidden mechanics are documented: use them for any question about chances, formulas, modifiers, or "does X affect Y". Search them with kinds ["summary"].
+- glossary: abbreviations and nicknames used by players (e.g. AAA, OM, TDG).
+
+Summaries are written automatically and can contain mistakes. When a number or rule in your answer comes only from a summary, check it in the code with get_source (the summary gives the file and lines) before stating it, and cite the summary.
 
 How to answer:
 - Base your answer on knowledge base documents. Search again with different words when the first results don't contain the answer: try the official in-game name, English, or a broader topic. Players use nicknames and slang.
@@ -94,6 +98,7 @@ How to answer:
 - Not finding a rule is not proof that it doesn't exist: the knowledge base does not cover every formula of the game code, and many bonuses and modifiers are hidden. Before concluding that an effect does not exist, run at least one more search aimed at it from another angle (constructions, items, statuses or hero skills related to the subject). If you still find nothing, don't open with "no": say what your documents do show, that they don't mention such an effect, and point out any related hint you found (for example a construction or item description that alludes to it).
 - Reply in the language of the question, using the in-game names of that language (they are on the cards).
 - Internal ids in cards (such as `drink_tl0` or `StatusEffect(pointType=1)`) are implementation details: translate them into what they mean for the player. Drop-table percentages are the share of finds in that table, not the chance per search.
+- For questions that compare or rank ("the best", "the most", "which ... gives the highest ..."), use list_entities to see every candidate instead of judging from a few search results.
 - Mention it when a rule depends on the town type, a job, or a status.
 - Cite the documents you used: write their key in square brackets right after the statement they support, e.g. [card:item:water_#00:fr]. Only cite keys that appear in the documents you were given."#;
 
@@ -112,7 +117,7 @@ fn tools() -> Value {
                 "properties": {
                     "query": {"type": "string", "description": "What to look for, in natural language or with in-game names"},
                     "lang": {"type": "string", "enum": langs, "description": "Language of the documents to search (language-neutral rule documents are always included)"},
-                    "kinds": {"type": "array", "items": {"type": "string", "enum": ["entity_card", "help", "rule"]}, "description": "Restrict to these document kinds"},
+                    "kinds": {"type": "array", "items": {"type": "string", "enum": ["entity_card", "help", "rule", "glossary", "summary", "code"]}, "description": "Restrict to these document kinds"},
                     "k": {"type": "integer", "minimum": 1, "maximum": 10, "description": "Number of results (default 6)"}
                 },
                 "required": ["query"]
@@ -138,8 +143,59 @@ fn tools() -> Value {
                 },
                 "required": ["name"]
             }
+        },
+        {
+            "name": "get_source",
+            "description": "Read lines of a MyHordes source file, e.g. to verify a number or condition given by a summary document. Paths look like src/EventListener/Game/Citizen/CitizenChanceQueryListener.php. At most 150 lines per call.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "path": {"type": "string"},
+                    "start_line": {"type": "integer"},
+                    "end_line": {"type": "integer"}
+                },
+                "required": ["path", "start_line", "end_line"]
+            }
+        },
+        {
+            "name": "list_entities",
+            "description": "List every entity of a kind with its key numbers, optionally sorted (highest first). Use it to compare or rank: the best camping ruin, the cheapest or strongest construction, all heavy items... Fields: ruin: camping (camping bonus), min_dist, max_dist (km), capacity, empty (chance to be empty), chance (spawn weight); building: defense, ap, health, isTemporary, blueprintLevel, parentBuilding; item: category, heavy, deco, watchpoint (night watch defense); profession: dig_bonus, hero; heroskill: unlockAt (hero days).",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string", "enum": ["ruin", "building", "item", "profession", "heroskill", "status", "role", "town"]},
+                    "sort_by": {"type": "string", "description": "Field to sort by, highest first"},
+                    "limit": {"type": "integer", "description": "Maximum number of rows (default 100)"},
+                    "lang": {"type": "string", "enum": langs, "description": "Language of the names"}
+                },
+                "required": ["kind"]
+            }
         }
     ])
+}
+
+/// Fields shown by `list_entities`, per entity kind
+fn list_fields(kind: &str) -> &'static [&'static str] {
+    match kind {
+        "ruin" => &["camping", "min_dist", "max_dist", "capacity", "empty", "chance"],
+        "building" => &["defense", "ap", "health", "isTemporary", "blueprintLevel", "parentBuilding"],
+        "item" => &["category", "heavy", "deco", "watchpoint"],
+        "profession" => &["dig_bonus", "hero"],
+        "heroskill" => &["unlockAt"],
+        "status" => &["volatile"],
+        "role" => &["vote"],
+        "town" => &["ranked"],
+        _ => &[],
+    }
+}
+
+fn as_number(v: &Value) -> Option<f64> {
+    match v {
+        Value::Number(n) => n.as_f64(),
+        Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
+        Value::String(s) => s.parse().ok(),
+        _ => None,
+    }
 }
 
 /// Keys of the documents shown to the model, with their metadata
@@ -206,6 +262,62 @@ async fn run_tool(pool: &PgPool, embedder: &Embedder, mode: Mode, default_lang: 
             let mut out = String::new();
             for (id, local_name, score) in rows {
                 let _ = writeln!(out, "- {local_name} — entity {id}, card key card:{id}:{lang} (match {score:.2})");
+            }
+            Ok(out)
+        }
+        "get_source" => {
+            let path = str_arg("path").unwrap_or_default().trim_start_matches('/').replace('\\', "/");
+            let start = input.get("start_line").and_then(Value::as_u64).unwrap_or(1).max(1) as usize;
+            let end = input.get("end_line").and_then(Value::as_u64).unwrap_or(start as u64) as usize;
+            let end = end.clamp(start, start + 149);
+            let row: Option<(String, Option<String>)> =
+                sqlx::query_as("SELECT content, git_sha FROM source_files WHERE path = $1").bind(&path).fetch_optional(pool).await?;
+            let Some((content, git_sha)) = row else {
+                return Ok(format!("No indexed source file '{path}'."));
+            };
+            let key = format!("code:{path}");
+            seen.entry(key.clone()).or_insert_with(|| Source { key: key.clone(), title: format!("Source code: {path}"), kind: "code".into(), path: Some(path.clone()), git_sha });
+            let lines: String = content.lines().enumerate().skip(start - 1).take(end + 1 - start).map(|(i, l)| format!("{:>5}| {l}\n", i + 1)).collect();
+            Ok(format!("<source key=\"{key}\" lines=\"{start}-{end}\">\n{lines}</source>"))
+        }
+        "list_entities" => {
+            let kind = str_arg("kind").unwrap_or_default();
+            let lang = str_arg("lang").unwrap_or_else(|| default_lang.to_string());
+            let fields = list_fields(&kind);
+            if fields.is_empty() {
+                return Ok(format!("Unknown kind '{kind}'."));
+            }
+            let limit = input.get("limit").and_then(Value::as_u64).unwrap_or(100).clamp(1, 400) as usize;
+            let mut rows: Vec<(String, Option<String>, Value)> = sqlx::query_as(
+                "SELECT e.id, (SELECT name FROM entity_names n WHERE n.entity_id = e.id AND n.lang = $2 LIMIT 1), e.data
+                 FROM entities e WHERE e.kind = $1 ORDER BY e.id",
+            )
+            .bind(&kind)
+            .bind(&lang)
+            .fetch_all(pool)
+            .await?;
+            let sort_by = str_arg("sort_by").filter(|f| fields.contains(&f.as_str()));
+            if let Some(field) = &sort_by {
+                let key = |d: &Value| d.get(field).and_then(as_number).unwrap_or(f64::NEG_INFINITY);
+                rows.sort_by(|a, b| key(&b.2).total_cmp(&key(&a.2)));
+            }
+            let mut out = format!(
+                "{} entities of kind {kind}{}:\n",
+                rows.len(),
+                sort_by.as_ref().map(|f| format!(", sorted by {f} (highest first)")).unwrap_or_default()
+            );
+            for (id, name, data) in rows.iter().take(limit) {
+                let card = format!("card:{id}:{lang}");
+                let name = name.clone().unwrap_or_else(|| id.clone());
+                seen.entry(card.clone()).or_insert_with(|| Source { key: card.clone(), title: name.clone(), kind: "entity_card".into(), path: None, git_sha: None });
+                let values: Vec<String> = fields
+                    .iter()
+                    .filter_map(|f| data.get(*f).filter(|v| !v.is_null()).map(|v| format!("{f}={}", v.as_str().map(str::to_string).unwrap_or_else(|| v.to_string()))))
+                    .collect();
+                let _ = writeln!(out, "- {name} [{card}]: {}", values.join(", "));
+            }
+            if rows.len() > limit {
+                let _ = writeln!(out, "… {} more not shown (raise limit)", rows.len() - limit);
             }
             Ok(out)
         }

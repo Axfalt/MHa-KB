@@ -61,7 +61,17 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
         }
     };
 
-    add(vector_candidates(pool, embedder, query, opts).await?, "vector", 1.0);
+    let dims = embedder.kind().dims();
+    // Embedding is CPU-bound: keep it off the async worker so the bot stays responsive
+    let qv = Vector::from(tokio::task::block_in_place(|| embedder.query(query))?);
+    add(vector_candidates(pool, dims, &qv, opts).await?, "vector", 1.0);
+    // Code summaries are English and explain the formulas behind everything else, but a question in
+    // another language only reaches them through vectors: give them a vector ranking of their own
+    let wants_summaries = opts.kinds.as_ref().is_none_or(|k| k.iter().any(|k| k == "summary"));
+    if wants_summaries {
+        let summary_opts = SearchOptions { kinds: Some(vec!["summary".into()]), ..opts.clone() };
+        add(vector_candidates(pool, dims, &qv, &summary_opts).await?, "summary", 1.0);
+    }
     add(fulltext_candidates(pool, query, opts).await?, "fulltext", 1.0);
     // A named entity in the question is a strong signal: weight its card higher
     add(entity_candidates(pool, query, opts).await?, "name", 1.5);
@@ -92,10 +102,7 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
     Ok(hits)
 }
 
-async fn vector_candidates(pool: &PgPool, embedder: &Embedder, query: &str, opts: &SearchOptions) -> Result<Vec<i64>> {
-    let dims = embedder.kind().dims();
-    // Embedding is CPU-bound: keep it off the async worker so the bot stays responsive
-    let qv = Vector::from(tokio::task::block_in_place(|| embedder.query(query))?);
+async fn vector_candidates(pool: &PgPool, dims: usize, qv: &Vector, opts: &SearchOptions) -> Result<Vec<i64>> {
     let sql = format!(
         "SELECT c.id FROM chunks c JOIN documents d ON d.id = c.document_id
          WHERE c.embedding IS NOT NULL AND {FILTERS}

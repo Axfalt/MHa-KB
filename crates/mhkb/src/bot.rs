@@ -146,7 +146,12 @@ fn render(question: &str, a: &Answer, mode: Mode, qa_id: i64, secs: f32) -> pois
             (Mode::Dev, Some(path), Some(sha)) => Some(format!("{GITLAB_BLOB}/{sha}/{path}")),
             _ => None,
         };
-        let title = s.title.trim_start_matches("Help: ");
+        let title = match s.kind.as_str() {
+            // Machine-written: say so, so readers weigh it accordingly
+            "summary" => format!("{} — automatic summary of the game code", s.title.trim_start_matches("How it works: ")),
+            "code" => s.title.clone(),
+            _ => s.title.trim_start_matches("Help: ").to_string(),
+        };
         let line = match link {
             Some(url) => format!("[{}] [{}]({url})\n", i + 1, title),
             None => format!("[{}] {}\n", i + 1, title),

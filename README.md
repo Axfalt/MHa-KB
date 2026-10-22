@@ -91,3 +91,21 @@ Put secrets in `.env` (git-ignored); see `.env.example`.
 
 Search fuses vector similarity, Postgres full-text search and fuzzy entity-name matching (pg_trgm) with
 Reciprocal Rank Fusion.
+
+## Code knowledge (Phase 3)
+
+```sh
+cargo run --release -- ingest code     # PHP methods (tree-sitter) + file outlines + source snapshot + code→entity edges
+cargo run --release -- summarize       # Claude summaries of game-logic files (Batch API, cached by file hash), then indexed
+cargo run --release -- feedback        # answers that got a 👎 on Discord
+```
+
+Summaries are machine-written: the bot labels them as such, and checks numbers that only come from a summary
+against the code (`get_source` tool) before stating them.
+
+## Player glossary
+
+`ingest entities` downloads the abbreviation list of [L'Argordien](https://argordien.dev.ctruillet.eu)
+([source](https://gitlab.com/ctruillet/argordien), GPL-3.0) at ingest time: it is stored in the database
+only, not in this repository. Abbreviations that name a game entity become nicknames on its cards
+(`TDG` → Tour de guet). Add your own in `knowledge/aliases.yaml`. Disable with `GLOSSARY_URL=`.

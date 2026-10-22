@@ -1,0 +1,5 @@
+# Community nicknames and abbreviations, by entity id (see `mhkb search` / the cards for ids).
+# They are added to the name search and shown on the entity's cards.
+# Format: <entity id>: [nickname, nickname, ...]
+
+ruin:bunker: [AAA, Abri Anti Atomique]

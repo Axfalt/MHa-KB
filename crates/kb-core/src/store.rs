@@ -127,11 +127,11 @@ pub struct EdgeRow {
     pub weight: Option<f64>,
 }
 
-/// Replaces the whole entity graph (entities, their names, edges). It is derived from the
-/// fixture export in one pass, so a full rebuild is simpler and cheap.
+/// Replaces the whole entity graph (entities, their names, edges between entities). It is derived
+/// from the fixture export in one pass, so a full rebuild is simpler and cheap. Code edges are kept.
 pub async fn replace_entities(pool: &PgPool, entities: &[EntityRow], names: &[(String, String, String)], edges: &[EdgeRow]) -> Result<()> {
     let mut tx = pool.begin().await?;
-    sqlx::query("DELETE FROM edges").execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM edges WHERE NOT starts_with(src, 'code:')").execute(&mut *tx).await?;
     sqlx::query("DELETE FROM entities").execute(&mut *tx).await?;
 
     for batch in entities.chunks(500) {
@@ -160,6 +160,12 @@ pub async fn replace_entities(pool: &PgPool, entities: &[EntityRow], names: &[(S
             .await?;
     }
 
+    insert_edges(&mut tx, edges).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+async fn insert_edges(tx: &mut sqlx::Transaction<'_, sqlx::Postgres>, edges: &[EdgeRow]) -> Result<()> {
     let mut seen = HashSet::new();
     let edges: Vec<_> = edges.iter().filter(|e| seen.insert((&e.src, &e.rel, &e.dst))).collect();
     for batch in edges.chunks(1000) {
@@ -172,10 +178,37 @@ pub async fn replace_entities(pool: &PgPool, entities: &[EntityRow], names: &[(S
             .bind(&rel)
             .bind(&dst)
             .bind(&weight)
+            .execute(&mut **tx)
+            .await?;
+    }
+    Ok(())
+}
+
+/// Replaces the edges from code symbols (`code:...`) to entities and settings.
+pub async fn replace_code_edges(pool: &PgPool, edges: &[EdgeRow]) -> Result<()> {
+    let mut tx = pool.begin().await?;
+    sqlx::query("DELETE FROM edges WHERE starts_with(src, 'code:')").execute(&mut *tx).await?;
+    insert_edges(&mut tx, edges).await?;
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Replaces the snapshot of indexed source files: (path, content hash, content).
+pub async fn replace_source_files(pool: &PgPool, files: &[(String, String, String)], git_sha: Option<&str>) -> Result<()> {
+    let mut tx = pool.begin().await?;
+    sqlx::query("DELETE FROM source_files").execute(&mut *tx).await?;
+    for batch in files.chunks(200) {
+        let paths: Vec<&str> = batch.iter().map(|f| f.0.as_str()).collect();
+        let hashes: Vec<&str> = batch.iter().map(|f| f.1.as_str()).collect();
+        let contents: Vec<&str> = batch.iter().map(|f| f.2.as_str()).collect();
+        sqlx::query("INSERT INTO source_files (path, content_hash, content, git_sha) SELECT p, h, c, $4 FROM UNNEST($1::text[], $2::text[], $3::text[]) AS t(p, h, c)")
+            .bind(&paths)
+            .bind(&hashes)
+            .bind(&contents)
+            .bind(git_sha)
             .execute(&mut *tx)
             .await?;
     }
-
     tx.commit().await?;
     Ok(())
 }

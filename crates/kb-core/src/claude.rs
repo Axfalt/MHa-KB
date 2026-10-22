@@ -8,6 +8,7 @@ use serde_json::{Value, json};
 use tracing::warn;
 
 const API_URL: &str = "https://api.anthropic.com/v1/messages";
+const BATCHES_URL: &str = "https://api.anthropic.com/v1/messages/batches";
 const API_VERSION: &str = "2023-06-01";
 /// Server-side refusal fallback, `fallbacks: "default"` form
 const FALLBACK_BETA: &str = "server-side-fallback-2026-07-01";
@@ -26,7 +27,8 @@ pub struct Usage {
 }
 
 impl Usage {
-    fn from_response(v: &Value) -> Self {
+    /// Usage of a Messages API response body
+    pub fn from_response(v: &Value) -> Self {
         let n = |k: &str| v.get("usage").and_then(|u| u.get(k)).and_then(Value::as_u64).unwrap_or(0);
         Self {
             input_tokens: n("input_tokens"),
@@ -130,6 +132,57 @@ impl Claude {
 
     pub fn from_env() -> Result<Self> {
         Self::new(std::env::var("ANTHROPIC_API_KEY").unwrap_or_default())
+    }
+
+    fn get(&self, url: &str) -> reqwest::RequestBuilder {
+        self.http.get(url).header("x-api-key", &self.api_key).header("anthropic-version", API_VERSION)
+    }
+
+    /// Submits a Message Batch (50% price, results within 24h). `requests` are (custom_id, params);
+    /// params must not contain `fallbacks`, which the Batches API rejects. Returns the batch id.
+    pub async fn create_batch(&self, requests: &[(String, Value)]) -> Result<String> {
+        let body = json!({
+            "requests": requests.iter().map(|(id, params)| json!({"custom_id": id, "params": params})).collect::<Vec<_>>()
+        });
+        let resp = self
+            .http
+            .post(BATCHES_URL)
+            .header("x-api-key", &self.api_key)
+            .header("anthropic-version", API_VERSION)
+            .json(&body)
+            .send()
+            .await?;
+        let status = resp.status();
+        let text = resp.text().await?;
+        if !status.is_success() {
+            bail!("creating batch failed ({status}): {text}");
+        }
+        let v: Value = serde_json::from_str(&text)?;
+        v.get("id").and_then(Value::as_str).map(str::to_string).context("batch response without id")
+    }
+
+    /// Current state of a batch (`processing_status`, `request_counts`, `results_url`, ...)
+    pub async fn get_batch(&self, id: &str) -> Result<Value> {
+        let resp = self.get(&format!("{BATCHES_URL}/{id}")).send().await?;
+        let status = resp.status();
+        let text = resp.text().await?;
+        if !status.is_success() {
+            bail!("reading batch {id} failed ({status}): {text}");
+        }
+        Ok(serde_json::from_str(&text)?)
+    }
+
+    /// Results of an ended batch: (custom_id, result object with `type` succeeded/errored/...)
+    pub async fn batch_results(&self, results_url: &str) -> Result<Vec<(String, Value)>> {
+        let text = self.get(results_url).send().await?.error_for_status()?.text().await?;
+        text.lines()
+            .filter(|l| !l.trim().is_empty())
+            .map(|l| {
+                let v: Value = serde_json::from_str(l)?;
+                let id = v.get("custom_id").and_then(Value::as_str).unwrap_or("").to_string();
+                Ok((id, v.get("result").cloned().unwrap_or(Value::Null)))
+            })
+            .collect()
     }
 
     /// POST /v1/messages. `body` must contain `model`; adds the refusal fallback where supported.

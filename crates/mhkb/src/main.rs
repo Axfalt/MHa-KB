@@ -1,6 +1,7 @@
 mod bot;
 mod eval;
 mod ingest;
+mod summarize;
 
 use std::path::PathBuf;
 
@@ -43,9 +44,15 @@ enum Cmd {
         /// Output of php/export.php
         #[arg(long, env = "EXPORT_DIR", default_value = "export")]
         export: PathBuf,
-        /// MyHordes checkout (for translations and templates)
+        /// MyHordes checkout (for translations, templates and code)
         #[arg(long, env = "MYHORDES_DIR", default_value = "../myhordes")]
         myhordes: PathBuf,
+        /// Curated knowledge (aliases, topics)
+        #[arg(long, default_value = "knowledge")]
+        knowledge: PathBuf,
+        /// Player glossary to download ({lang} is replaced); empty to skip
+        #[arg(long, env = "GLOSSARY_URL", default_value = ingest::glossary::DEFAULT_URL)]
+        glossary_url: String,
         #[arg(long, value_delimiter = ',', default_value = "en,fr,de,es")]
         langs: Vec<String>,
         /// Skip embedding the new chunks
@@ -129,6 +136,30 @@ enum Cmd {
         #[arg(long, env = "DEV_EFFORT", default_value = "medium")]
         dev_effort: String,
     },
+    /// Summarize game-logic source files with Claude (Batch API by default) and index the summaries
+    Summarize {
+        #[arg(long, default_value = "claude-opus-5-5")]
+        model: String,
+        #[arg(long, default_value = "medium")]
+        effort: String,
+        /// Only files whose path contains this (repeatable), e.g. for a pilot
+        #[arg(long)]
+        only: Vec<String>,
+        /// Send requests one by one at full price instead of a half-price batch
+        #[arg(long)]
+        sync: bool,
+        /// Maximum number of files to send
+        #[arg(long)]
+        limit: Option<usize>,
+        /// Don't rebuild the summary documents afterwards
+        #[arg(long)]
+        no_index: bool,
+    },
+    /// List recent bot answers that got a 👎
+    Feedback {
+        #[arg(short, default_value_t = 20)]
+        n: i64,
+    },
     /// Document and chunk counts
     Stats,
 }
@@ -146,8 +177,9 @@ async fn main() -> Result<()> {
 
     match cli.cmd {
         Cmd::Migrate => info!("migrations applied"),
-        Cmd::Ingest { source, export, myhordes, langs, no_embed } => {
-            ingest::run(&pool, source, &export, &myhordes, &langs).await?;
+        Cmd::Ingest { source, export, myhordes, knowledge, glossary_url, langs, no_embed } => {
+            let glossary_url = Some(glossary_url).filter(|u| !u.is_empty());
+            ingest::run(&pool, source, &export, &myhordes, &knowledge, glossary_url.as_deref(), &langs).await?;
             if !no_embed {
                 embed(&pool, &load_embedder()?, false, 64).await?;
             }
@@ -221,6 +253,27 @@ async fn main() -> Result<()> {
         Cmd::Bot { model, player_effort, dev_effort } => {
             let cfg = AnswerConfig { model, effort: (player_effort, dev_effort), ..Default::default() };
             bot::run(pool, load_embedder()?, Claude::from_env()?, bot::BotConfig::from_env(cfg)?).await?;
+        }
+        Cmd::Summarize { model, effort, only, sync, limit, no_index } => {
+            let opts = summarize::Options { model, effort, only, sync, limit };
+            summarize::run(&pool, &Claude::from_env()?, &opts).await?;
+            if !no_index {
+                ingest::save(&pool, "summary:", summarize::documents(&pool).await?).await?;
+                embed(&pool, &load_embedder()?, false, 64).await?;
+            }
+        }
+        Cmd::Feedback { n } => {
+            let rows: Vec<(i64, chrono::DateTime<chrono::Utc>, String, String, Option<String>, Option<serde_json::Value>)> = sqlx::query_as(
+                "SELECT id, created_at, lang, question, answer, sources FROM qa_log WHERE feedback < 0 ORDER BY id DESC LIMIT $1",
+            )
+            .bind(n)
+            .fetch_all(&pool)
+            .await?;
+            for (id, at, lang, question, answer, sources) in rows {
+                let keys: Vec<String> = sources.as_ref().and_then(|s| s.as_array()).map(|a| a.iter().filter_map(|s| s["key"].as_str().map(str::to_string)).collect()).unwrap_or_default();
+                let answer: String = answer.unwrap_or_default().replace('\n', " ").chars().take(300).collect();
+                println!("#{id} {} [{lang}] {question}\n  sources: {}\n  {answer}\n", at.format("%Y-%m-%d %H:%M"), keys.join(", "));
+            }
         }
         Cmd::Stats => stats(&pool).await?,
     }

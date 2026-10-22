@@ -308,3 +308,19 @@
     - "Yes, indirectly: scout visits raise a zone's scout level (up to 3)"
     - "Each scout level adds 2.5% dig chance for everyone digging in that zone (max +7.5%)"
   note: "partial: Scouts Lair card hints at it; real rule is +2.5% dig chance per zone scout level (max 3), getDigChances (qa_log #1)"
+
+- q: quel est le meilleur spot de camping ?
+  lang: fr
+  level: casual
+  expect: [card:ruin:bunker]
+  facts:
+    - "The Nuclear Bunker (Abri anti-atomique, nicknamed AAA) has the highest camping bonus of all ruins: 50"
+  note: "superlative question; qa_log #2"
+
+- q: is the AAA a good place to camp?
+  lang: en
+  level: casual
+  expect: [card:ruin:bunker]
+  facts:
+    - "AAA is the Nuclear Bunker (Abri anti-atomique)"
+    - "It has the highest camping bonus of all ruins (50)"
