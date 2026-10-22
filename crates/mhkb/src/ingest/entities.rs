@@ -216,6 +216,47 @@ impl Ctx<'_> {
         }
     }
 
+    /// (action, item it is used with) for a job: actions gated on the job, then the actions of its
+    /// starting items. Players know these as the job's abilities (the Scavenger's zone excavation
+    /// is an action of the Small Spade), so the job card must list them.
+    fn job_actions(&self, job: &str, profession: &Value) -> Vec<(String, Option<String>)> {
+        let job_flag = format!("job_{job}");
+        let gating: Vec<String> = self
+            .f
+            .actions
+            .get("meta_requirements")
+            .map(entries)
+            .unwrap_or_default()
+            .into_iter()
+            .filter(|(_, req)| {
+                req.get("atomList").map(entries).unwrap_or_default().iter().any(|(_, a)| a.get("payload").and_then(|p| p.get(&job_flag)) == Some(&Value::Bool(true)))
+            })
+            .map(|(id, _)| id)
+            .collect();
+        let item_actions = self.f.actions.get("items");
+        let item_with = |action: &str| -> Option<String> {
+            entries(item_actions?).into_iter().find(|(_, list)| list.as_array().is_some_and(|l| l.iter().any(|a| a.as_str() == Some(action)))).map(|(item, _)| item)
+        };
+
+        let mut out: Vec<(String, Option<String>)> = Vec::new();
+        for (id, action) in self.f.actions.get("actions").map(entries).unwrap_or_default() {
+            let gated = action.get("meta").map(entries).unwrap_or_default().iter().any(|(_, r)| r.as_str().is_some_and(|r| gating.iter().any(|g| g == r)));
+            if gated {
+                let item = item_with(&id);
+                out.push((id, item));
+            }
+        }
+        for (item, _) in weighted_list(profession.get("items").unwrap_or(&Value::Null)) {
+            let actions = item_actions.and_then(|m| m.get(&item)).and_then(Value::as_array).cloned().unwrap_or_default();
+            for action in actions.iter().filter_map(Value::as_str) {
+                if !out.iter().any(|(a, _)| a == action) {
+                    out.push((action.to_string(), Some(item.clone())));
+                }
+            }
+        }
+        out
+    }
+
     fn describe_action(&self, lang: &str, id: &str, out: &mut String) {
         let Some(a) = self.action(id) else {
             let _ = writeln!(out, "- `{id}`");
@@ -375,6 +416,22 @@ pub fn build(export: &Path, tr: &Translations, langs: &[String], git_sha: Option
             }
             if let Some(bonus) = num(p, "dig_bonus") {
                 let _ = writeln!(c, "Digging bonus: +{}%", fmt_num(bonus * 100.0));
+            }
+            let actions = ctx.job_actions(&key, p);
+            if !actions.is_empty() {
+                let _ = writeln!(c, "
+## Job abilities (actions only this job can use, or that come with its starting items)");
+                let mut heading = None;
+                for (action, item) in &actions {
+                    if heading != Some(item) {
+                        heading = Some(item);
+                        let _ = match item {
+                            Some(item) => writeln!(c, "With {}:", ctx.item_name(lang, item)),
+                            None => writeln!(c, "Job-only action:"),
+                        };
+                    }
+                    ctx.describe_action(lang, action, &mut c);
+                }
             }
             out.docs.push(doc(&id, lang, title, c));
         }

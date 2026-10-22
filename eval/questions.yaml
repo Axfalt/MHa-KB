@@ -349,3 +349,12 @@
   facts:
     - "Declines: the question is not about MyHordes"
   note: "off-topic; qa_log #6"
+
+- q: Quelles sont les particularités des fouines ?
+  lang: fr
+  level: casual
+  expect: [card:profession:collec, help:collec, topic:jobs]
+  facts:
+    - "The Scavenger (Fouineur) digs with a +20% bonus and auto-digs faster"
+    - "With the Small Spade, once per day, the Scavenger can excavate a depleted zone to make it searchable again; each zone can be excavated only once"
+  note: "qa_log #7 👎: the excavation was in a later chunk of the job card, never shown to the bot"

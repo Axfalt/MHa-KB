@@ -104,7 +104,7 @@ How to answer:
 - Mention it when a rule depends on the town type, a job, or a status.
 - Cite the documents you used: write their key in square brackets right after the statement they support, e.g. [card:item:water_#00:fr]. Only cite keys that appear in the documents you were given."#;
 
-const SYSTEM_PLAYER: &str = r#"Audience: players. Keep the answer short enough for a Discord message (a few sentences or a short list, under about 200 words). Give concrete numbers and conditions. No source code, file paths or configuration keys."#;
+const SYSTEM_PLAYER: &str = r#"Audience: players. Keep the answer short enough for a Discord message (a few sentences or a short list, under about 200 words). Give concrete numbers and conditions. Keep the limits that change what a player can do: how often something works (per day, per town) and how the numbers differ by town type (small, default, Pandemonium) when the documents say so; cut background before cutting these. No source code, file paths or configuration keys."#;
 
 const SYSTEM_DEV: &str = r#"Audience: MyHordes developers and contributors. Be precise and technical: include internal ids, configuration keys with their TownSetting names, and file paths where the documents give them. Up to about 400 words."#;
 
@@ -203,6 +203,47 @@ fn as_number(v: &Value) -> Option<f64> {
 /// Keys of the documents shown to the model, with their metadata
 type Seen = HashMap<String, Source>;
 
+/// Entity cards up to this size are shown whole: search returns one chunk per document, and a
+/// card's later chunks hold what players ask about (a job's abilities, an item's actions)
+const WHOLE_CARD_CHARS: i32 = 5000;
+
+/// Replaces the matched chunk of short entity cards with the whole card, and puts the opening of
+/// topic dossiers (their key facts) before the matched chunk: a later chunk alone can mislead, e.g.
+/// "Scout digging bonus +0%" without the zone scout levels that do raise digging chances
+async fn whole_cards(pool: &PgPool, hits: &mut [Hit]) -> Result<()> {
+    let topics: Vec<i64> = hits.iter().filter(|h| h.kind == "topic").map(|h| h.document_id).collect();
+    if !topics.is_empty() {
+        let rows: Vec<(i64, i64, String)> = sqlx::query_as("SELECT document_id, id, content FROM chunks WHERE document_id = ANY($1) AND ord = 0")
+            .bind(&topics)
+            .fetch_all(pool)
+            .await?;
+        for (document_id, chunk_id, intro) in rows {
+            if let Some(h) = hits.iter_mut().find(|h| h.document_id == document_id && h.chunk_id != chunk_id) {
+                h.content = format!("{intro}
+[…]
+{}", h.content);
+            }
+        }
+    }
+    let ids: Vec<i64> = hits.iter().filter(|h| h.kind == "entity_card").map(|h| h.document_id).collect();
+    if ids.is_empty() {
+        return Ok(());
+    }
+    let rows: Vec<(i64, String)> = sqlx::query_as("SELECT id, content FROM documents WHERE id = ANY($1) AND length(content) <= $2")
+        .bind(&ids)
+        .bind(WHOLE_CARD_CHARS)
+        .fetch_all(pool)
+        .await?;
+    let whole: HashMap<i64, String> = rows.into_iter().collect();
+    for h in hits.iter_mut() {
+        if let Some(content) = whole.get(&h.document_id) {
+            h.content = format!("# {}
+{}", h.title, content);
+        }
+    }
+    Ok(())
+}
+
 fn render_hits(hits: &[Hit], seen: &mut Seen) -> String {
     if hits.is_empty() {
         return "No results.".into();
@@ -228,7 +269,8 @@ async fn run_tool(pool: &PgPool, embedder: &Embedder, mode: Mode, default_lang: 
                 kinds,
                 audience: Some(mode.audience().to_string()),
             };
-            let hits = search::search(pool, embedder, &query, &opts).await?;
+            let mut hits = search::search(pool, embedder, &query, &opts).await?;
+            whole_cards(pool, &mut hits).await?;
             Ok(render_hits(&hits, seen))
         }
         "get_document" => {
@@ -362,13 +404,14 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
     let lang = if LANGS.contains(&lang) { lang } else { "en" };
     let mut seen: Seen = HashMap::new();
 
-    let initial = search::search(
+    let mut initial = search::search(
         pool,
         embedder,
         question,
         &SearchOptions { k: cfg.initial_k, lang: Some(lang.to_string()), kinds: None, audience: Some(mode.audience().to_string()) },
     )
     .await?;
+    whole_cards(pool, &mut initial).await?;
 
     let messages = vec![json!({
         "role": "user",
