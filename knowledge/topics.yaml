@@ -1,0 +1,93 @@
+# Topics for the generated dossiers (`mhkb dossier`), written to knowledge/topics/<id>.md.
+# scope: what the dossier must cover; it guides the research.
+
+- id: digging
+  title: "Digging in the desert"
+  scope: "Success chance when digging a zone, depleted zones and their regeneration, the night penalty and what cancels it, job bonuses, statuses, zone scout level, dig timers, what items can be found."
+- id: scavenging-buildings
+  title: "Searching buildings (ruins) in the desert"
+  scope: "Searching a ruin/building in the World Beyond, chance to find nothing, buried buildings and clearing them, drops, camping bonus of buildings."
+- id: ruin-exploration
+  title: "Explorable ruins"
+  scope: "Entering explorable ruins, oxygen, rooms and doors, searching inside, zombies inside, items found, job bonuses."
+- id: camping
+  title: "Camping in the World Beyond"
+  scope: "How the camping survival chance is computed, building/ruin camping bonus, camping improvements and tombs, items, jobs (survivalist), statuses, hero skills, caps, night decay of improvements, town types."
+- id: night-attack
+  title: "The nightly attack"
+  scope: "What happens at midnight, order of the nightly stages, number of attacking zombies, town defense check, open door, house attacks and deaths, devastation."
+- id: attack-estimation
+  title: "Attack estimation (watchtower)"
+  scope: "How the zombie attack estimation works, its accuracy and how it improves, buildings and roles involved."
+- id: town-defense
+  title: "Town defense"
+  scope: "How town defense is computed: constructions, temporary constructions, homes, defensive items, guardians, night watch, bonuses and maluses."
+- id: night-watch
+  title: "Night watch"
+  scope: "Becoming a watchman, defense contributed, weapons and items, death, wound and terror chances, fatigue from previous watches, statuses, buildings, panda differences."
+- id: zombie-spread
+  title: "Zombies in the desert"
+  scope: "Initial zombie placement, daily spawn and spreading, respawn, zombie counts per zone, killing zombies outside."
+- id: zone-control
+  title: "Zone control and escaping"
+  scope: "Control points, when a zone is blocked, escaping, camouflage, escort effects."
+- id: scouts
+  title: "Scouts (Éclaireur / hunter)"
+  scope: "Camouflage, chance to be spotted, scout visits and zone scout levels, the Scouts' Lair, scout markers, effect of scout levels on digging and detection."
+- id: thirst-and-water
+  title: "Thirst, water and the well"
+  scope: "Thirst and dehydration, drinking rules and AP, water items, the well and its rations, pump and water constructions."
+- id: food-and-ap
+  title: "Food, AP and exhaustion"
+  scope: "Action points, eating rules, food items and AP gained, exhaustion, alcohol, coffee, daily resets."
+- id: drugs-and-addiction
+  title: "Drugs, addiction and terror"
+  scope: "Drugs and their effects, addiction and its consequences, terror and how to cure it."
+- id: wounds-and-infection
+  title: "Wounds, infection and death"
+  scope: "Wounds and their effects, infection and its death chance, healing, immunity, death causes."
+- id: ghouls
+  title: "Ghouls"
+  scope: "How citizens become ghouls, ghoul infection, hunger, devouring citizens, ghoul restrictions, ghoul modes per town type."
+- id: shaman-and-souls
+  title: "Shaman, souls and spirits"
+  scope: "Shaman role and actions, souls in the desert, purifying souls, red souls, shaman buildings."
+- id: roles-and-votes
+  title: "Elected roles and votes"
+  scope: "Shaman and guide elections, how votes work, role powers, catapult master."
+- id: banishment
+  title: "Complaints and banishment"
+  scope: "Complaints, becoming shunned, consequences of banishment, hidden stashes, killing citizens."
+- id: homes
+  title: "Homes and home upgrades"
+  scope: "Home levels, home defense, home upgrades, decoration points, theft from homes, locks."
+- id: construction
+  title: "Constructions"
+  scope: "Building sites, AP and resource costs, blueprints and their rarity, construction damage and repairs, temporary constructions, hard mode costs."
+- id: daily-upgrades
+  title: "Daily construction upgrades"
+  scope: "Upgrade votes, which constructions can be upgraded, effects per level."
+- id: workshop
+  title: "Workshop and item transformations"
+  scope: "Workshop transformations, AP costs, recipe kinds (workshop, shaman, technician, manual), notable recipes and chances."
+- id: bank-and-theft
+  title: "Bank and theft"
+  scope: "The town bank, taking items, limits, stealing from homes and the bank at night, consequences."
+- id: hero-skills
+  title: "Heroes, hero days and hero skills"
+  scope: "Hero days and experience, unlocking hero skills, heroic actions, legacy skills."
+- id: jobs
+  title: "Jobs (professions)"
+  scope: "Every job, its starting items and its bonuses, hero jobs, how to choose a job."
+- id: town-types
+  title: "Town types"
+  scope: "Differences between default (remote/distant), small, panda (Pandemonium) and custom/private towns: map, rules, roles, buildings, rankings."
+- id: soul-points-and-pictos
+  title: "Soul points and pictos"
+  scope: "How soul points are earned, pictos and their conditions, season rankings."
+- id: escort
+  title: "Escort"
+  scope: "Escorting citizens in the World Beyond, limits, movement and AP rules, effects on control and camouflage."
+- id: catapult
+  title: "Catapult"
+  scope: "The catapult construction, catapult master, sending items, AP cost and rules."

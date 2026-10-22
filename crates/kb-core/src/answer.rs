@@ -89,6 +89,7 @@ Your knowledge comes from a knowledge base generated from the MyHordes source co
 - rule: the default town configuration values, plus, for each other town type (small, remote, panda = Pandemonium, custom), the list of values that differ from the default.
 - summary: plain-language explanations (in English) of the game's source code, method by method, with the exact numbers, chances, formulas and conditions. They are the only place where hidden mechanics are documented: use them for any question about chances, formulas, modifiers, or "does X affect Y". Search them with kinds ["summary"].
 - glossary: abbreviations and nicknames used by players (e.g. AAA, OM, TDG).
+- topic: dossiers (in English) that connect all the pieces of one mechanic (digging, camping, night watch, scouts, ...) with their numbers and sources. Start with them for "how does X work" questions, then open their sources for details.
 
 Summaries are written automatically and can contain mistakes. When a number or rule in your answer comes only from a summary, check it in the code with get_source (the summary gives the file and lines) before stating it, and cite the summary.
 
@@ -118,7 +119,7 @@ fn tools() -> Value {
                 "properties": {
                     "query": {"type": "string", "description": "What to look for, in natural language or with in-game names"},
                     "lang": {"type": "string", "enum": langs, "description": "Language of the documents to search (language-neutral rule documents are always included)"},
-                    "kinds": {"type": "array", "items": {"type": "string", "enum": ["entity_card", "help", "rule", "glossary", "summary", "code"]}, "description": "Restrict to these document kinds"},
+                    "kinds": {"type": "array", "items": {"type": "string", "enum": ["entity_card", "help", "rule", "glossary", "summary", "topic", "code"]}, "description": "Restrict to these document kinds"},
                     "k": {"type": "integer", "minimum": 1, "maximum": 10, "description": "Number of results (default 6)"}
                 },
                 "required": ["query"]
@@ -369,7 +370,7 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
     )
     .await?;
 
-    let mut messages = vec![json!({
+    let messages = vec![json!({
         "role": "user",
         "content": format!(
             "<search_results>\n{}</search_results>\n\n<question>{}</question>",
@@ -385,7 +386,24 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
         Mode::Player => &cfg.effort.0,
         Mode::Dev => &cfg.effort.1,
     };
+    tool_loop(pool, embedder, claude, cfg, effort, mode, lang, system, messages, seen).await
+}
 
+/// Runs the model with the knowledge-base tools until it answers (or `cfg.max_steps` is reached),
+/// then resolves its citations against the documents it was shown.
+#[allow(clippy::too_many_arguments)]
+async fn tool_loop(
+    pool: &PgPool,
+    embedder: &Embedder,
+    claude: &Claude,
+    cfg: &AnswerConfig,
+    effort: &str,
+    mode: Mode,
+    lang: &str,
+    system: Value,
+    mut messages: Vec<Value>,
+    mut seen: Seen,
+) -> Result<Answer> {
     let mut usage = Usage::default();
     let mut tool_calls = Vec::new();
     let mut model_used = cfg.model.clone();
@@ -413,6 +431,11 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
         usage.add(response.usage);
         model_used = response.model().to_string();
         debug!(step, stop = response.stop_reason(), "model step");
+        // The model may write its answer next to a last tool call and end with an empty turn
+        let text = response.text();
+        if !text.trim().is_empty() {
+            final_text = text;
+        }
 
         match response.stop_reason() {
             "tool_use" => {
@@ -427,6 +450,11 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
                     };
                     results.push(json!({"type": "tool_result", "tool_use_id": id, "content": content, "is_error": is_error}));
                 }
+                // The next request has tools disabled: say so, or the model may keep "researching" in
+                // its thinking and end without writing anything
+                if step + 2 == cfg.max_steps {
+                    results.push(json!({"type": "text", "text": "That was your last tool call: no more tools are available. Write your final answer now with what you have."}));
+                }
                 messages.push(json!({"role": "user", "content": results}));
             }
             "refusal" => {
@@ -436,7 +464,10 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
             }
             other => {
                 outcome = other.to_string();
-                final_text = response.text();
+                if final_text.trim().is_empty() {
+                    let types: Vec<&str> = response.content().as_array().map(|b| b.iter().filter_map(|b| b["type"].as_str()).collect()).unwrap_or_default();
+                    tracing::warn!(stop = other, ?types, "model ended without text");
+                }
                 break;
             }
         }
@@ -453,6 +484,38 @@ pub async fn answer(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &A
         model: model_used,
         outcome,
     })
+}
+
+const SYSTEM_RESEARCH: &str = r#"You write reference dossiers about the game mechanics of MyHordes (the community remake of Hordes / Die2Nite / Zombinoia) for a knowledge base that answers player and developer questions.
+
+The knowledge base contains entity cards, in-game help pages, town rules per town type, a player glossary, and "summary" documents that explain the game's source code method by method. Summaries are written automatically and may contain mistakes: verify every number and condition you take from a summary in the code with get_source before writing it down.
+
+Research the topic thoroughly with the tools (searches from several angles, kinds ["summary"] for formulas, get_source to verify, list_entities to compare), then write the dossier in English Markdown:
+
+# <Topic title>
+## In short
+2 to 4 sentences a player can act on.
+## How it works
+The mechanic step by step: when it happens, every number, chance and formula with its conditions.
+## What changes it
+Jobs, statuses, items, constructions, hero skills, roles and settings that modify it, each with its exact effect.
+## Town types
+Differences between default, small, remote, panda (Pandemonium) and custom towns, if any.
+## Related
+Connected mechanics.
+## Not verified
+What you could not confirm in the code or documents (omit the section if nothing).
+
+Cite every factual statement with the key of the document it comes from in square brackets, e.g. [summary:src/Entity/Zone.php:Zone::getScoutLevel] or [code:src/Entity/Zone.php] for code you read with get_source. Only state what the documents and code show. Prefer precision over length, but leave out no number that matters to players."#;
+
+/// Researches a topic with the knowledge-base tools and writes a cited Markdown dossier.
+pub async fn research(pool: &PgPool, embedder: &Embedder, claude: &Claude, cfg: &AnswerConfig, effort: &str, topic: &str, scope: &str) -> Result<Answer> {
+    let system = json!([{"type": "text", "text": SYSTEM_RESEARCH, "cache_control": {"type": "ephemeral"}}]);
+    let messages = vec![json!({
+        "role": "user",
+        "content": format!("<topic>{topic}</topic>\n<scope>{scope}</scope>\n\nWrite the dossier.")
+    })];
+    tool_loop(pool, embedder, claude, cfg, effort, Mode::Dev, "en", system, messages, Seen::new()).await
 }
 
 #[cfg(test)]

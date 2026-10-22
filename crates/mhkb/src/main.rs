@@ -1,4 +1,5 @@
 mod bot;
+mod dossier;
 mod eval;
 mod ingest;
 mod summarize;
@@ -155,6 +156,23 @@ enum Cmd {
         #[arg(long)]
         no_index: bool,
     },
+    /// Write topic dossiers (knowledge/topics/*.md) with Claude, then index them
+    Dossier {
+        /// Only these topic ids (repeatable)
+        #[arg(long)]
+        only: Vec<String>,
+        /// Regenerate existing dossiers
+        #[arg(long)]
+        force: bool,
+        #[arg(long, env = "ANSWER_MODEL", default_value = "claude-opus-5-5")]
+        model: String,
+        #[arg(long, default_value = "medium")]
+        effort: String,
+        #[arg(long, default_value_t = 3)]
+        parallel: usize,
+        #[arg(long, default_value = "knowledge")]
+        knowledge: PathBuf,
+    },
     /// List recent bot answers that got a 👎
     Feedback {
         #[arg(short, default_value_t = 20)]
@@ -261,6 +279,14 @@ async fn main() -> Result<()> {
                 ingest::save(&pool, "summary:", summarize::documents(&pool).await?).await?;
                 embed(&pool, &load_embedder()?, false, 64).await?;
             }
+        }
+        Cmd::Dossier { only, force, model, effort, parallel, knowledge } => {
+            let embedder = load_embedder()?;
+            let cfg = AnswerConfig { model, max_steps: 30, max_tokens: 24_000, ..Default::default() };
+            let opts = dossier::Options { only, force, effort, parallel };
+            dossier::run(&pool, &embedder, &Claude::from_env()?, &cfg, &knowledge, &opts).await?;
+            ingest::save(&pool, "topic:", dossier::documents(&knowledge)?).await?;
+            embed(&pool, &embedder, false, 64).await?;
         }
         Cmd::Feedback { n } => {
             let rows: Vec<(i64, chrono::DateTime<chrono::Utc>, String, String, Option<String>, Option<serde_json::Value>)> = sqlx::query_as(

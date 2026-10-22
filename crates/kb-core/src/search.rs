@@ -67,9 +67,9 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
     add(vector_candidates(pool, dims, &qv, opts).await?, "vector", 1.0);
     // Code summaries are English and explain the formulas behind everything else, but a question in
     // another language only reaches them through vectors: give them a vector ranking of their own
-    let wants_summaries = opts.kinds.as_ref().is_none_or(|k| k.iter().any(|k| k == "summary"));
+    let wants_summaries = opts.kinds.as_ref().is_none_or(|k| k.iter().any(|k| k == "summary" || k == "topic"));
     if wants_summaries {
-        let summary_opts = SearchOptions { kinds: Some(vec!["summary".into()]), ..opts.clone() };
+        let summary_opts = SearchOptions { kinds: Some(vec!["summary".into(), "topic".into()]), ..opts.clone() };
         add(vector_candidates(pool, dims, &qv, &summary_opts).await?, "summary", 1.0);
     }
     add(fulltext_candidates(pool, query, opts).await?, "fulltext", 1.0);
@@ -100,6 +100,24 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
 
     let mut seen_docs = std::collections::HashSet::new();
     hits.retain(|h| seen_docs.insert(h.document_id));
+
+    // Quota: the best code explanations (English) always get a couple of slots, since a question in
+    // another language rarely ranks them high, yet they hold the actual formulas
+    let explains = |h: &Hit| h.kind == "summary" || h.kind == "topic";
+    let quota = if opts.kinds.is_none() && k >= 4 { 2 } else { 0 };
+    let in_top = hits.iter().take(k).filter(|h| explains(h)).count();
+    if in_top < quota {
+        let extra: Vec<Hit> = hits.iter().skip(k).filter(|h| explains(h)).take(quota - in_top).cloned().collect();
+        let mut top: Vec<Hit> = hits.into_iter().take(k).collect();
+        // Make room by dropping the lowest-ranked other documents
+        for e in extra {
+            if let Some(pos) = top.iter().rposition(|h| !explains(h)) {
+                top.remove(pos);
+            }
+            top.push(e);
+        }
+        return Ok(top);
+    }
     hits.truncate(k);
     Ok(hits)
 }

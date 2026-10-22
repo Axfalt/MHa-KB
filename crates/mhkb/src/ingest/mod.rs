@@ -20,6 +20,7 @@ pub enum Source {
     Help,
     Rules,
     Code,
+    Topics,
 }
 
 /// Git commit of the MyHordes checkout the export was made from
@@ -109,6 +110,9 @@ pub async fn run(
         store::replace_code_edges(pool, &out.edges).await?;
         info!(files = files.len(), edges = out.edges.len(), "source files and code edges replaced");
         save(pool, "code:", out.docs).await?;
+    }
+    if matches!(source, Source::All | Source::Topics) {
+        save(pool, "topic:", crate::dossier::documents(knowledge)?).await?;
     }
     Ok(())
 }
