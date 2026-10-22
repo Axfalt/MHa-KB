@@ -1,0 +1,554 @@
+[
+  {
+    "q": "Where can I find batteries?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:en",
+      "card:item:electro_box_#00:en",
+      "card:item:big_pgun_part_#00:en",
+      "card:item:can_#00:en",
+      "help:survivalist:en"
+    ]
+  },
+  {
+    "q": "Où trouver des piles ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:fr",
+      "card:list:pictos:fr",
+      "help:the_community:fr",
+      "card:item:rp_sheets_#00:fr",
+      "card:item:pile_broken_#00:fr"
+    ]
+  },
+  {
+    "q": "Wie viel Verteidigung gibt der Große Graben?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:small_gather_#00:de",
+      "card:building:item_meca_parts_#00:de",
+      "card:building:small_trap_#00:de",
+      "help:daily_upgrades:de",
+      "card:building:item_home_def_#00:de"
+    ]
+  },
+  {
+    "q": "Combien de PA faut-il pour construire l'Atelier ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:small_refine_#00:fr",
+      "help:tech:fr",
+      "help:constructing_new_buildings:fr",
+      "card:building:small_factory_#00:fr",
+      "help:the_community:fr"
+    ]
+  },
+  {
+    "q": "What can I get by opening a toolbox?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:chest_tools_#00:en",
+      "card:item:catbox_#00:en",
+      "card:item:chest_xl_#00:en",
+      "card:item:chest_#00:en",
+      "card:item:can_#00:en"
+    ]
+  },
+  {
+    "q": "Que contient une caisse de matériel ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:chest_tools_#00:fr",
+      "card:item:wood_plate_part_#00:fr",
+      "card:ruin:warehouse:fr",
+      "card:ruin:cave3:fr",
+      "card:ruin:cave:fr"
+    ]
+  },
+  {
+    "q": "¿Dónde encuentro cianuro?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:cyanure_#00:es",
+      "card:item:coffee_machine_part_#00:es",
+      "help:lost_souls:es",
+      "card:item:cadaver_#00:es",
+      "card:ruin:hospital:es"
+    ]
+  },
+  {
+    "q": "What does the Manipulator hero skill do?",
+    "level": "easy",
+    "rank": 3,
+    "top": [
+      "card:item:tamed_pet_drug_#00:en",
+      "card:item:tamed_pet_#00:en",
+      "card:heroskill:manipulator:en",
+      "help:the_attack_of_the_hordes:en",
+      "card:item:keymol_#00:en"
+    ]
+  },
+  {
+    "q": "À quoi sert la Tour de guet ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:item_tagger_#00:fr",
+      "card:building:small_round_path_#00:fr",
+      "card:building:item_scope_#00:fr",
+      "card:item:wood_beam_#00:fr",
+      "card:building:small_gather_#02:fr"
+    ]
+  },
+  {
+    "q": "What does the Tamer job do?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:profession:tamer:en",
+      "card:item:tamed_pet_drug_#00:en",
+      "card:item:tamed_pet_#00:en",
+      "help:lost_souls:en",
+      "help:tamer:en"
+    ]
+  },
+  {
+    "q": "Comment devenir chaman ?",
+    "level": "medium",
+    "rank": 2,
+    "top": [
+      "card:profession:shaman:fr",
+      "card:role:shaman:fr",
+      "help:shaman:fr",
+      "help:lost_souls:fr",
+      "card:item:potion_#00:fr"
+    ]
+  },
+  {
+    "q": "How does extreme camping work?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:extreme_camping:en",
+      "help:survivalist:en",
+      "help:death_and_soul_points:en",
+      "help:blueprints:en",
+      "help:hunter:en"
+    ]
+  },
+  {
+    "q": "Quelles sont mes chances de survie si je campe dehors ?",
+    "level": "medium",
+    "rank": 2,
+    "top": [
+      "card:item:surv_book_#00:fr",
+      "help:extreme_camping:fr",
+      "help:survivalist:fr",
+      "help:world_beyond:fr",
+      "help:hardcore_towns:fr"
+    ]
+  },
+  {
+    "q": "Can a ghoul drink water?",
+    "level": "medium",
+    "rank": 5,
+    "top": [
+      "card:item:water_can_1_#00:en",
+      "card:item:water_can_2_#00:en",
+      "card:item:water_cup_#00:en",
+      "card:item:water_can_3_#00:en",
+      "card:item:water_#00:en"
+    ]
+  },
+  {
+    "q": "Que se passe-t-il si je suis infecté ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:status:infection:fr",
+      "help:quarantined_towns:fr",
+      "help:health:fr",
+      "help:extreme_camping:fr",
+      "help:your_soul:fr"
+    ]
+  },
+  {
+    "q": "What happens if I don't drink for a day?",
+    "level": "medium",
+    "rank": null,
+    "top": [
+      "card:status:hasdrunk:en",
+      "help:death_and_soul_points:en",
+      "card:status:drunk:en",
+      "help:towns_in_nondistantregions:en",
+      "card:status:tg_no_hangover:en"
+    ]
+  },
+  {
+    "q": "Was bringt eine Kleine Schaufel?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:item:pelle_#00:de",
+      "help:towns_in_nondistantregions:de",
+      "help:coalitions:de",
+      "card:building:small_cemetery_#00:de",
+      "help:collec:de"
+    ]
+  },
+  {
+    "q": "What is the difference between small towns and normal towns?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:town:small:en",
+      "help:private_towns:en",
+      "help:towns_in_nondistantregions:en",
+      "help:seasons_and_rankings:en",
+      "help:extreme_camping:en"
+    ]
+  },
+  {
+    "q": "Quelles sont les règles spéciales du Pandémonium ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:town:panda:fr",
+      "help:hardcore_towns:fr",
+      "help:seasons_and_rankings:fr",
+      "help:private_towns:fr",
+      "help:use_of_external_scripts:fr"
+    ]
+  },
+  {
+    "q": "What do I get when I dismantle a broken electrical appliance in the workshop?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:item:electro_box_#00:en",
+      "card:building:small_refine_#00:en",
+      "card:item:apple_blue_#00:en",
+      "help:the_attack_of_the_hordes:en",
+      "help:the_community:en"
+    ]
+  },
+  {
+    "q": "What is the Guard Tower for?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:building:small_watchmen_#00:en",
+      "card:item:pet_dog_#00:en",
+      "card:building:small_round_path_#00:en",
+      "card:status:tamer_guard_1:en",
+      "help:the_attack_of_the_hordes:en"
+    ]
+  },
+  {
+    "q": "What is the Scavenger's digging bonus?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:profession:collec:en",
+      "card:item:pelle_#00:en",
+      "help:extreme_camping:en",
+      "help:collec:en",
+      "help:the_attack_of_the_hordes:en"
+    ]
+  },
+  {
+    "q": "Comment fonctionne la catapulte ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:building:item_courroie_#00:fr",
+      "help:catapult:fr",
+      "card:item:cinema_#00:fr",
+      "card:building:item_courroie_#01:fr",
+      "card:item:bone_#00:fr"
+    ]
+  },
+  {
+    "q": "¿Qué es un alma perdida?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:lost_souls:es",
+      "card:item:soul_blue_#00:es",
+      "card:item:soul_red_#00:es",
+      "help:your_soul:es",
+      "card:item:soul_blue_#01:es"
+    ]
+  },
+  {
+    "q": "Wann wird man zum Ghul?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:role:ghoul:de",
+      "help:ghouls:de",
+      "help:death_and_soul_points:de",
+      "help:health:de",
+      "card:item:vagoul_#00:de"
+    ]
+  },
+  {
+    "q": "How do I get more water into the town well?",
+    "level": "medium",
+    "rank": null,
+    "top": [
+      "card:item:jerrycan_#00:en",
+      "help:the_attack_of_the_hordes:en",
+      "card:item:water_cup_part_#00:en",
+      "help:shaman:en",
+      "card:item:potion_#00:en"
+    ]
+  },
+  {
+    "q": "What is the chance to find something when digging in a depleted zone?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "help:depleted_zones:en",
+      "help:the_attack_of_the_hordes:en",
+      "card:item:pelle_#00:en",
+      "help:the_community:en",
+      "help:shaman:en"
+    ]
+  },
+  {
+    "q": "Quelle est la probabilité de mourir en veille ?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "help:the_watchmen:fr",
+      "help:death_and_soul_points:fr",
+      "help:extreme_camping:fr",
+      "help:your_soul:fr",
+      "help:health:fr"
+    ]
+  },
+  {
+    "q": "How is the size of the nightly zombie attack estimated?",
+    "level": "hard",
+    "rank": 2,
+    "top": [
+      "card:building:small_grater_#00:en",
+      "help:the_attack_of_the_hordes:en",
+      "help:shaman:en",
+      "card:item:taser_#00:en",
+      "help:the_watchmen:en"
+    ]
+  },
+  {
+    "q": "How many new zombies appear in the desert each night?",
+    "level": "hard",
+    "rank": null,
+    "top": [
+      "help:the_attack_of_the_hordes:en",
+      "card:item:concrete_wall_#00:en",
+      "help:shaman:en",
+      "card:item:mixergun_#00:en",
+      "help:the_community:en"
+    ]
+  },
+  {
+    "q": "Does night time change anything when digging?",
+    "level": "hard",
+    "rank": 4,
+    "top": [
+      "card:item:pelle_#00:en",
+      "help:extreme_camping:en",
+      "help:health:en",
+      "help:the_night:en",
+      "card:item:sheet_#00:en"
+    ]
+  },
+  {
+    "q": "comment on fait pour pas mourir de soif dans l'OM ?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:health:fr",
+      "help:ghouls:fr",
+      "help:death_and_soul_points:fr",
+      "help:seasons_and_rankings:fr",
+      "card:status:thirst1:fr"
+    ]
+  },
+  {
+    "q": "c koi le mieux pour fouiller plus vite",
+    "level": "casual",
+    "rank": 3,
+    "top": [
+      "help:collec:fr",
+      "help:ruin_exploration:fr",
+      "help:exploring_and_scavenging:fr",
+      "card:profession:collec:fr",
+      "help:getting_around:fr"
+    ]
+  },
+  {
+    "q": "jsuis devenu goule wtf je fais quoi",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:role:ghoul:fr",
+      "card:item:vagoul_#00:fr",
+      "help:ghouls:fr",
+      "help:health:fr",
+      "card:item:poison_part_#00:fr"
+    ]
+  },
+  {
+    "q": "ca sert a quoi le gros trou autour de la ville",
+    "level": "casual",
+    "rank": null,
+    "top": [
+      "help:welcome_to_the_town:fr",
+      "help:the_community:fr",
+      "help:the_attack_of_the_hordes:fr",
+      "card:building:small_round_path_#00:fr",
+      "help:daily_upgrades:fr"
+    ]
+  },
+  {
+    "q": "on trouve ou du cyanure",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:item:cyanure_#00:fr",
+      "card:ruin:deserted_hospital:fr",
+      "card:item:coffee_machine_part_#00:fr",
+      "card:item:oilcan_#00:fr",
+      "card:ruin:sports_crow:fr"
+    ]
+  },
+  {
+    "q": "le chaman il sert à quoi en vrai",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:profession:shaman:fr",
+      "card:role:shaman:fr",
+      "help:shaman:fr",
+      "help:lost_souls:fr",
+      "card:item:potion_#00:fr"
+    ]
+  },
+  {
+    "q": "c'est quoi la diff entre petite ville et ville normale",
+    "level": "casual",
+    "rank": null,
+    "top": [
+      "help:coalitions:fr",
+      "help:welcome_to_the_town:fr",
+      "help:private_towns:fr",
+      "help:the_attack_of_the_hordes:fr",
+      "help:daily_upgrades:fr"
+    ]
+  },
+  {
+    "q": "how do i get rid of infection",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:status:infection:en",
+      "help:health:en",
+      "card:heroskill:cheatdeath:en",
+      "help:getting_around:en",
+      "help:ruin_exploration:en"
+    ]
+  },
+  {
+    "q": "where do i get batterys",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:en",
+      "help:ruin_exploration:en",
+      "card:item:big_pgun_part_#00:en",
+      "card:item:quantum_#00:en",
+      "help:survivalist:en"
+    ]
+  },
+  {
+    "q": "is it safe to sleep outside the town",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:extreme_camping:en",
+      "help:welcome_to_the_town:en",
+      "help:world_beyond:en",
+      "card:item:safe_#00:en",
+      "help:about_accountsitting:en"
+    ]
+  },
+  {
+    "q": "whats the point of the tower that tells you how big the attack is",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:building:item_tagger_#00:en",
+      "help:the_attack_of_the_hordes:en",
+      "card:building:small_watchmen_#00:en",
+      "help:death_and_soul_points:en",
+      "card:building:small_gather_#02:en"
+    ]
+  },
+  {
+    "q": "how many AP for the first wall",
+    "level": "casual",
+    "rank": 3,
+    "top": [
+      "card:building:small_wallimprove_#01:en",
+      "help:the_attack_of_the_hordes:en",
+      "card:building:small_wallimprove_#00:en",
+      "help:shaman:en",
+      "card:building:item_home_def_#00:en"
+    ]
+  },
+  {
+    "q": "pando rules?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:town:panda:en",
+      "rule:panda:modifiers",
+      "help:use_of_external_scripts:en",
+      "rule:default:allow_local_conf",
+      "rule:panda:stranger_day_limit"
+    ]
+  },
+  {
+    "q": "wie überlebe ich die nacht draußen",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:extreme_camping:de",
+      "help:the_watchmen:de",
+      "help:the_community:de",
+      "help:welcome:de",
+      "help:the_night:de"
+    ]
+  },
+  {
+    "q": "was macht der schami",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:shaman:de",
+      "card:list:pictos:de",
+      "help:lost_souls:de",
+      "help:collec:de",
+      "help:ghouls:de"
+    ]
+  }
+]

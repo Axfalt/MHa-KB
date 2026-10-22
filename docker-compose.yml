@@ -1,0 +1,35 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: mhkb
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mhkb}
+      POSTGRES_DB: mhkb
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mhkb -d mhkb"]
+      interval: 5s
+      retries: 10
+
+  # One-shot exporter: `docker compose run --rm php ...` (see README)
+  php:
+    build: ./php
+    profiles: ["export"]
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "0"
+    volumes:
+      - ${MYHORDES_DIR:-../myhordes}:/app
+      # vendor/ and var/ live in volumes so the MyHordes checkout is not filled with build artifacts
+      - mh_vendor:/app/vendor
+      - mh_var:/app/var
+      - ./php/export.php:/kb/export.php:ro
+      - ./export:/export
+
+volumes:
+  pgdata:
+  mh_vendor:
+  mh_var:
