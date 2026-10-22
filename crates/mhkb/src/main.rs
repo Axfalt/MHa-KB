@@ -98,6 +98,9 @@ enum Cmd {
         /// Model grading the answers (with --answers)
         #[arg(long, default_value = "claude-opus-5-5")]
         judge_model: String,
+        /// Only questions containing this text
+        #[arg(long)]
+        only: Option<String>,
     },
     /// Answer a question with Claude, as the Discord bot does
     Ask {
@@ -172,12 +175,12 @@ async fn main() -> Result<()> {
                 }
             }
         }
-        Cmd::Eval { questions, k, out, verbose, answers, model, judge_model } => {
+        Cmd::Eval { questions, k, out, verbose, answers, model, judge_model, only } => {
             if answers {
                 let cfg = AnswerConfig { model, ..Default::default() };
-                eval::run_answers(&pool, &load_embedder()?, &Claude::from_env()?, &questions, &cfg, &judge_model, out.as_deref(), verbose).await?;
+                eval::run_answers(&pool, &load_embedder()?, &Claude::from_env()?, &questions, only.as_deref(), &cfg, &judge_model, out.as_deref(), verbose).await?;
             } else {
-                eval::run(&pool, &load_embedder()?, &questions, k, out.as_deref(), verbose).await?;
+                eval::run(&pool, &load_embedder()?, &questions, only.as_deref(), k, out.as_deref(), verbose).await?;
             }
         }
         Cmd::Ask { question, lang, dev, model, effort, verbose } => {

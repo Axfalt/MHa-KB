@@ -26,9 +26,10 @@ struct Question {
     note: Option<String>,
 }
 
-fn load(path: &Path) -> Result<Vec<Question>> {
+fn load(path: &Path, only: Option<&str>) -> Result<Vec<Question>> {
     let raw = std::fs::read_to_string(path).with_context(|| format!("reading {}", path.display()))?;
-    Ok(serde_yaml::from_str(&raw)?)
+    let questions: Vec<Question> = serde_yaml::from_str(&raw)?;
+    Ok(questions.into_iter().filter(|q| only.is_none_or(|o| q.q.to_lowercase().contains(&o.to_lowercase()))).collect())
 }
 
 #[derive(Serialize)]
@@ -45,8 +46,8 @@ fn matches(key: &str, expected: &str) -> bool {
     key == expected || key.strip_prefix(expected).is_some_and(|rest| rest.starts_with(':'))
 }
 
-pub async fn run(pool: &PgPool, embedder: &Embedder, questions: &Path, k: usize, out: Option<&Path>, verbose: bool) -> Result<()> {
-    let questions = load(questions)?;
+pub async fn run(pool: &PgPool, embedder: &Embedder, questions: &Path, only: Option<&str>, k: usize, out: Option<&Path>, verbose: bool) -> Result<()> {
+    let questions = load(questions, only)?;
 
     let mut outcomes = Vec::new();
     for question in &questions {
@@ -194,12 +195,13 @@ pub async fn run_answers(
     embedder: &Embedder,
     claude: &Claude,
     questions: &Path,
+    only: Option<&str>,
     cfg: &AnswerConfig,
     judge_model: &str,
     out: Option<&Path>,
     verbose: bool,
 ) -> Result<()> {
-    let questions: Vec<Question> = load(questions)?.into_iter().filter(|q| !q.facts.is_empty()).collect();
+    let questions: Vec<Question> = load(questions, only)?.into_iter().filter(|q| !q.facts.is_empty()).collect();
     println!("Grading {} answers from {} (judge: {judge_model})\n", questions.len(), cfg.model);
 
     let mut graded = Vec::new();
