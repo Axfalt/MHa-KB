@@ -1895,6 +1895,7 @@ dependencies = [
  "anyhow",
  "fastembed",
  "hex",
+ "ort",
  "pgvector",
  "regex",
  "reqwest 0.13.5",

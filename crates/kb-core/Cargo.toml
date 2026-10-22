@@ -7,6 +7,8 @@ edition = "2024"
 anyhow = "1.0.104"
 fastembed = "7.2.0"
 hex = "0.4.3"
+# The version fastembed uses: one ONNX Runtime environment must be shared by the embedder and the reranker
+ort = { version = "=2.0.0-rc.15", default-features = false }
 pgvector = { version = "0.4.2", features = ["sqlx"] }
 regex = "1.13.1"
 reqwest = { version = "0.13.5", features = ["json"] }

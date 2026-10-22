@@ -41,6 +41,8 @@ pub struct Hit {
 const CANDIDATES: i64 = 40;
 /// Reciprocal Rank Fusion constant
 const RRF_K: f64 = 60.0;
+/// Best fused candidates (one per document) the reranker reorders
+const RERANK_POOL: usize = 30;
 
 const FILTERS: &str = "($2::text IS NULL OR d.lang = $2 OR d.lang IS NULL)
     AND ($3::text[] IS NULL OR d.kind = ANY($3))
@@ -100,6 +102,7 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
 
     let mut seen_docs = std::collections::HashSet::new();
     hits.retain(|h| seen_docs.insert(h.document_id));
+    rerank(embedder, query, &mut hits)?;
 
     // The best code explanations (English) are appended when the top k has fewer than 2: a question
     // in another language rarely ranks them high, yet they hold the actual formulas. They come on
@@ -112,6 +115,39 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
     hits.truncate(k);
     hits.extend(extra);
     Ok(hits)
+}
+
+/// Reorders the best candidates by the reranker's judgement, blended with their fused rank: the
+/// reranker reads only the chunk, so it can't see that "AAA" names the bunker's card
+fn rerank(embedder: &Embedder, query: &str, hits: &mut Vec<Hit>) -> Result<()> {
+    let pool = hits.len().min(RERANK_POOL);
+    let texts: Vec<String> = hits[..pool].iter().map(|h| format!("{}
+{}", h.title, h.content)).collect();
+    let Some(scores) = tokio::task::block_in_place(|| embedder.rerank(query, &texts))? else {
+        return Ok(());
+    };
+    let weight: f64 = std::env::var("RERANK_WEIGHT").ok().and_then(|w| w.parse().ok()).unwrap_or(1.0);
+    let mut order: Vec<usize> = (0..pool).collect();
+    order.sort_by(|&a, &b| scores[b].total_cmp(&scores[a]));
+    let mut blended = vec![0.0; pool];
+    for (rank, &i) in order.iter().enumerate() {
+        blended[i] = weight / (RRF_K + rank as f64 + 1.0);
+    }
+    for (rank, b) in blended.iter_mut().enumerate() {
+        *b += 1.0 / (RRF_K + rank as f64 + 1.0);
+    }
+    let mut top: Vec<Hit> = hits
+        .drain(..pool)
+        .zip(blended)
+        .map(|(mut h, b)| {
+            h.matched_by.push("rerank");
+            h.score = b;
+            h
+        })
+        .collect();
+    top.sort_by(|a, b| b.score.total_cmp(&a.score));
+    hits.splice(0..0, top);
+    Ok(())
 }
 
 async fn vector_candidates(pool: &PgPool, dims: usize, qv: &Vector, opts: &SearchOptions) -> Result<Vec<i64>> {

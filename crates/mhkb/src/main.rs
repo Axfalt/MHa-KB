@@ -10,7 +10,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use kb_core::answer::{self, AnswerConfig, Mode};
 use kb_core::claude::Claude;
-use kb_core::embed::{Embedder, ModelKind};
+use kb_core::embed::{Embedder, ModelKind, RerankKind};
 use kb_core::search::{self, SearchOptions};
 use kb_core::{db, store};
 use sqlx::PgPool;
@@ -25,6 +25,10 @@ struct Cli {
     /// Embedding model: e5-small (384d), e5-base (768d) or bge-m3 (1024d)
     #[arg(long, env = "EMBED_MODEL", default_value = "e5-base", global = true)]
     embed_model: String,
+
+    /// Reranker for search results: none, jina-v2 or bge-m3 (multilingual cross-encoders)
+    #[arg(long, env = "RERANK_MODEL", default_value = "none", global = true)]
+    rerank_model: String,
 
     /// Where embedding models are downloaded
     #[arg(long, env = "MODEL_CACHE", default_value = ".cache/models", global = true)]
@@ -197,6 +201,14 @@ async fn main() -> Result<()> {
     let pool = db::connect(&cli.database_url).await?;
     db::migrate(&pool).await?;
     let load_embedder = || -> Result<Embedder> { Embedder::load(ModelKind::parse(&cli.embed_model)?, &cli.model_cache) };
+    // For search: the embedder plus the reranker, which indexing doesn't need
+    let load_searcher = || -> Result<Embedder> {
+        let embedder = load_embedder()?;
+        match RerankKind::parse(&cli.rerank_model)? {
+            Some(kind) => embedder.with_reranker(kind, &cli.model_cache),
+            None => Ok(embedder),
+        }
+    };
 
     match cli.cmd {
         Cmd::Migrate => info!("migrations applied"),
@@ -209,7 +221,7 @@ async fn main() -> Result<()> {
         }
         Cmd::Embed { reset, batch } => embed(&pool, &load_embedder()?, reset, batch).await?,
         Cmd::Search { query, k, lang, kind, audience, full } => {
-            let embedder = load_embedder()?;
+            let embedder = load_searcher()?;
             let hits = search::search(&pool, &embedder, &query, &SearchOptions { k, lang, kinds: kind, audience }).await?;
             for (i, h) in hits.iter().enumerate() {
                 println!(
@@ -233,13 +245,13 @@ async fn main() -> Result<()> {
         Cmd::Eval { questions, k, out, verbose, answers, model, judge_model, only } => {
             if answers {
                 let cfg = AnswerConfig { model, ..Default::default() };
-                eval::run_answers(&pool, &load_embedder()?, &Claude::from_env()?, &questions, only.as_deref(), &cfg, &judge_model, out.as_deref(), verbose).await?;
+                eval::run_answers(&pool, &load_searcher()?, &Claude::from_env()?, &questions, only.as_deref(), &cfg, &judge_model, out.as_deref(), verbose).await?;
             } else {
-                eval::run(&pool, &load_embedder()?, &questions, only.as_deref(), k, out.as_deref(), verbose).await?;
+                eval::run(&pool, &load_searcher()?, &questions, only.as_deref(), k, out.as_deref(), verbose).await?;
             }
         }
         Cmd::Ask { question, lang, dev, model, effort, verbose } => {
-            let embedder = load_embedder()?;
+            let embedder = load_searcher()?;
             let claude = Claude::from_env()?;
             let mut cfg = AnswerConfig { model, ..Default::default() };
             if let Some(e) = effort {
@@ -275,7 +287,7 @@ async fn main() -> Result<()> {
         }
         Cmd::Bot { model, player_effort, dev_effort } => {
             let cfg = AnswerConfig { model, effort: (player_effort, dev_effort), ..Default::default() };
-            bot::run(pool, load_embedder()?, Claude::from_env()?, bot::BotConfig::from_env(cfg)?).await?;
+            bot::run(pool, load_searcher()?, Claude::from_env()?, bot::BotConfig::from_env(cfg)?).await?;
         }
         Cmd::Summarize { model, effort, only, sync, limit, no_index } => {
             let opts = summarize::Options { model, effort, only, sync, limit };
@@ -286,7 +298,7 @@ async fn main() -> Result<()> {
             }
         }
         Cmd::Dossier { only, force, model, effort, parallel, knowledge } => {
-            let embedder = load_embedder()?;
+            let embedder = load_searcher()?;
             let cfg = AnswerConfig { model, max_steps: 30, max_tokens: 24_000, ..Default::default() };
             let opts = dossier::Options { only, force, effort, parallel };
             dossier::run(&pool, &embedder, &Claude::from_env()?, &cfg, &knowledge, &opts).await?;
