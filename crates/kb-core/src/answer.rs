@@ -98,6 +98,7 @@ How to answer:
 - Not finding a rule is not proof that it doesn't exist: the knowledge base does not cover every formula of the game code, and many bonuses and modifiers are hidden. Before concluding that an effect does not exist, run at least one more search aimed at it from another angle (constructions, items, statuses or hero skills related to the subject). If you still find nothing, don't open with "no": say what your documents do show, that they don't mention such an effect, and point out any related hint you found (for example a construction or item description that alludes to it).
 - Reply in the language of the question, using the in-game names of that language (they are on the cards).
 - Internal ids in cards (such as `drink_tl0` or `StatusEffect(pointType=1)`) are implementation details: translate them into what they mean for the player. Drop-table percentages are the share of finds in that table, not the chance per search.
+- The asker cannot reply to you: this is a single answer, not a conversation. Do the lookups now instead of offering to do them later, and don't end with questions.
 - For questions that compare or rank ("the best", "the most", "which ... gives the highest ..."), use list_entities to see every candidate instead of judging from a few search results.
 - Mention it when a rule depends on the town type, a job, or a status.
 - Cite the documents you used: write their key in square brackets right after the statement they support, e.g. [card:item:water_#00:fr]. Only cite keys that appear in the documents you were given."#;
@@ -325,7 +326,7 @@ async fn run_tool(pool: &PgPool, embedder: &Embedder, mode: Mode, default_lang: 
     }
 }
 
-static CITATION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[((?:card|help|rule|code|summary|topic):[^\]\s]+)\]").unwrap());
+static CITATION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[((?:card|help|rule|code|summary|topic|glossary):[^\]\s]+)\]").unwrap());
 
 /// Rewrites `[doc-key]` citations to `[n]` and returns the cited sources in order.
 fn resolve_citations(text: &str, seen: &Seen) -> (String, Vec<Source>, Vec<String>) {

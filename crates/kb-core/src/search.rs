@@ -73,8 +73,10 @@ pub async fn search(pool: &PgPool, embedder: &Embedder, query: &str, opts: &Sear
         add(vector_candidates(pool, dims, &qv, &summary_opts).await?, "summary", 1.0);
     }
     add(fulltext_candidates(pool, query, opts).await?, "fulltext", 1.0);
-    // A named entity in the question is a strong signal: weight its card higher
-    add(entity_candidates(pool, query, opts).await?, "name", 1.5);
+    // A named entity in the question is a strong signal: weight its card higher. An exact nickname
+    // ("AAA", "MEK") names the entity unambiguously, so it counts a second time.
+    add(entity_candidates(pool, query, opts, false).await?, "name", 1.5);
+    add(entity_candidates(pool, query, opts, true).await?, "nickname", 1.5);
 
     let ids: Vec<i64> = fused.keys().copied().collect();
     let rows: Vec<Hit> = sqlx::query_as(
@@ -144,14 +146,27 @@ async fn fulltext_candidates(pool: &PgPool, query: &str, opts: &SearchOptions) -
         .await?)
 }
 
-/// First chunk of the cards of entities whose name appears (fuzzily) in the query.
-async fn entity_candidates(pool: &PgPool, query: &str, opts: &SearchOptions) -> Result<Vec<i64>> {
+/// First chunk of the cards of entities whose name appears (fuzzily) in the query, or whose
+/// nickname (often a short abbreviation like "MEK" or "AAA") is one of the query's words.
+async fn entity_candidates(pool: &PgPool, query: &str, opts: &SearchOptions, nicknames_only: bool) -> Result<Vec<i64>> {
     let card_lang = opts.lang.clone().unwrap_or_else(|| "en".to_string());
+    // Nicknames match whole words: case-insensitively from 3 letters ("mek"), but 1–2 letter ones
+    // only as typed in capitals, so "CE" (Composant électronique) doesn't match "est-ce"
+    let words: Vec<&str> = query.split(|c: char| !c.is_alphanumeric() && c != '&').filter(|w| !w.is_empty()).collect();
+    let lower_words: Vec<String> = words.iter().filter(|w| w.chars().count() >= 3).map(|w| w.to_lowercase()).collect();
+    let upper_words: Vec<&str> = words.iter().copied().filter(|w| w.chars().count() < 3 && w.chars().all(|c| !c.is_lowercase())).collect();
+    let exact_nickname = "(lang = 'alias' AND (lower(name) = ANY($7) OR name = ANY($8)))";
+    let matching = if nicknames_only {
+        exact_nickname.to_string()
+    } else {
+        format!("(char_length(name) >= 4 AND lower(name) <% lower($1)) OR {exact_nickname}")
+    };
     let sql = format!(
         "WITH named AS (
-             SELECT entity_id, max(word_similarity(lower(name), lower($1))) AS sim
+             SELECT entity_id,
+                    max(CASE WHEN {exact_nickname} THEN 1.0 ELSE word_similarity(lower(name), lower($1)) END) AS sim
              FROM entity_names
-             WHERE char_length(name) >= 4 AND lower(name) <% lower($1)
+             WHERE {matching}
              GROUP BY entity_id ORDER BY sim DESC LIMIT 8
          )
          SELECT c.id FROM named n
@@ -167,6 +182,8 @@ async fn entity_candidates(pool: &PgPool, query: &str, opts: &SearchOptions) -> 
         .bind(&opts.audience)
         .bind(CANDIDATES)
         .bind(card_lang)
+        .bind(&lower_words)
+        .bind(&upper_words)
         .fetch_all(pool)
         .await?)
 }
