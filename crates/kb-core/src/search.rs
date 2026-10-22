@@ -43,6 +43,8 @@ const CANDIDATES: i64 = 40;
 const RRF_K: f64 = 60.0;
 /// Best fused candidates (one per document) the reranker reorders
 const RERANK_POOL: usize = 30;
+/// Weight of the reranker's ranking against the fused ranking (best of 1, 2 and 100 on the eval)
+const RERANK_WEIGHT: f64 = 2.0;
 
 const FILTERS: &str = "($2::text IS NULL OR d.lang = $2 OR d.lang IS NULL)
     AND ($3::text[] IS NULL OR d.kind = ANY($3))
@@ -126,12 +128,11 @@ fn rerank(embedder: &Embedder, query: &str, hits: &mut Vec<Hit>) -> Result<()> {
     let Some(scores) = tokio::task::block_in_place(|| embedder.rerank(query, &texts))? else {
         return Ok(());
     };
-    let weight: f64 = std::env::var("RERANK_WEIGHT").ok().and_then(|w| w.parse().ok()).unwrap_or(1.0);
     let mut order: Vec<usize> = (0..pool).collect();
     order.sort_by(|&a, &b| scores[b].total_cmp(&scores[a]));
     let mut blended = vec![0.0; pool];
     for (rank, &i) in order.iter().enumerate() {
-        blended[i] = weight / (RRF_K + rank as f64 + 1.0);
+        blended[i] = RERANK_WEIGHT / (RRF_K + rank as f64 + 1.0);
     }
     for (rank, b) in blended.iter_mut().enumerate() {
         *b += 1.0 / (RRF_K + rank as f64 + 1.0);

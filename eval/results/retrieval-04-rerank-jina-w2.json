@@ -1,0 +1,656 @@
+[
+  {
+    "q": "Where can I find batteries?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:en",
+      "card:item:pilegun_empty_#00:en",
+      "card:item:radio_off_#00:en",
+      "card:item:mixergun_part_#00:en",
+      "card:item:electro_box_#00:en",
+      "topic:digging",
+      "topic:banishment"
+    ]
+  },
+  {
+    "q": "Où trouver des piles ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:fr",
+      "card:item:rp_sheets_#00:fr",
+      "card:item:pilegun_empty_#00:fr",
+      "card:item:big_pgun_empty_#00:fr",
+      "card:ruin:cave3:fr",
+      "topic:catapult",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage0_stranger"
+    ]
+  },
+  {
+    "q": "Wie viel Verteidigung gibt der Große Graben?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:small_gather_#00:de",
+      "card:building:small_waterhole_#00:de",
+      "card:building:small_gather_#01:de",
+      "card:building:small_spears_#00:de",
+      "card:building:small_gallery_#00:de",
+      "summary:src/Controller/InventoryAwareController.php:InventoryAwareController::generic_attack_api",
+      "summary:src/Service/TownHandler.php:TownHandler::calculate_town_def"
+    ]
+  },
+  {
+    "q": "Combien de PA faut-il pour construire l'Atelier ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:small_refine_#00:fr",
+      "card:building:small_factory_#00:fr",
+      "glossary:fr:action",
+      "help:constructing_new_buildings:fr",
+      "glossary:fr:objet-encombrant",
+      "summary:src/Entity/Building.php:Building::getPrototypeAP",
+      "summary:src/Controller/REST/Game/Town/Facilities/CatapultController.php:x"
+    ]
+  },
+  {
+    "q": "What can I get by opening a toolbox?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:chest_tools_#00:en",
+      "card:item:catbox_#00:en",
+      "card:item:chest_#00:en",
+      "card:item:chest_xl_#00:en",
+      "card:item:can_#00:en",
+      "topic:workshop",
+      "topic:digging"
+    ]
+  },
+  {
+    "q": "Que contient une caisse de matériel ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:chest_tools_#00:fr",
+      "card:ruin:warehouse:fr",
+      "card:item:rsc_pack_1_#00:fr",
+      "card:item:rsc_pack_3_#00:fr",
+      "card:item:chest_food_#00:fr",
+      "summary:src/Entity/Inventory.php",
+      "summary:src/Service/Translation/TranslationService.php"
+    ]
+  },
+  {
+    "q": "¿Dónde encuentro cianuro?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:item:cyanure_#00:es",
+      "card:item:coffee_machine_part_#00:es",
+      "card:item:chest_xl_#00:es",
+      "card:ruin:hospital:es",
+      "card:item:meat_#00:es",
+      "summary:src/Controller/InventoryAwareController.php:InventoryAwareController::before",
+      "topic:drugs-and-addiction"
+    ]
+  },
+  {
+    "q": "What does the Manipulator hero skill do?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:heroskill:manipulator:en",
+      "summary:src/Entity/HeroSkillPrototype.php",
+      "summary:src/Entity/HeroSkillUnlock.php",
+      "summary:src/Service/Actions/Game/HeroSkillUpgradeCheck.php",
+      "summary:src/Service/Actions/Game/HeroSkillUpgradeCheck.php:HeroSkillUpgradeCheck::__invoke"
+    ]
+  },
+  {
+    "q": "À quoi sert la Tour de guet ?",
+    "level": "easy",
+    "rank": 1,
+    "top": [
+      "card:building:item_tagger_#00:fr",
+      "card:building:small_round_path_#00:fr",
+      "card:building:small_gather_#02:fr",
+      "glossary:fr:chantier",
+      "card:building:item_scope_#00:fr",
+      "topic:scouts",
+      "topic:catapult"
+    ]
+  },
+  {
+    "q": "What does the Tamer job do?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:profession:tamer:en",
+      "topic:jobs",
+      "summary:src/Controller/Town/TownAddonsController.php:TownAddonsController::api_trap_lure",
+      "summary:src/Hooks/ItemTargetRendererHooks.php",
+      "card:item:tamed_pet_drug_#00:en"
+    ]
+  },
+  {
+    "q": "Comment devenir chaman ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:shaman:fr",
+      "card:profession:shaman:fr",
+      "card:role:shaman:fr",
+      "help:lost_souls:fr",
+      "help:ghouls:fr",
+      "topic:jobs",
+      "summary:src/Entity/PictoComment.php"
+    ]
+  },
+  {
+    "q": "How does extreme camping work?",
+    "level": "medium",
+    "rank": 2,
+    "top": [
+      "summary:src/EventListener/Game/Action/CampingItemActionListener.php:CampingItemActionListener::onCustomAction",
+      "help:extreme_camping:en",
+      "help:survivalist:en",
+      "topic:camping",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_vanish"
+    ]
+  },
+  {
+    "q": "Quelles sont mes chances de survie si je campe dehors ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:extreme_camping:fr",
+      "topic:camping",
+      "help:survivalist:fr",
+      "card:ruin:tent:fr",
+      "card:ruin:home:fr",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php"
+    ]
+  },
+  {
+    "q": "Can a ghoul drink water?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "topic:ghouls",
+      "topic:thirst-and-water",
+      "card:item:water_cup_#00:en",
+      "card:item:potion_#00:en",
+      "card:item:water_can_1_#00:en"
+    ]
+  },
+  {
+    "q": "Que se passe-t-il si je suis infecté ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:status:infection:fr",
+      "help:health:fr",
+      "help:ghouls:fr",
+      "topic:wounds-and-infection",
+      "card:status:immune:fr",
+      "summary:src/Service/CitizenHandler.php:CitizenHandler::inflictStatus"
+    ]
+  },
+  {
+    "q": "What happens if I don't drink for a day?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "topic:thirst-and-water",
+      "card:item:water_cup_#00:en",
+      "card:item:water_#00:en",
+      "card:item:potion_#00:en",
+      "topic:food-and-ap"
+    ]
+  },
+  {
+    "q": "Was bringt eine Kleine Schaufel?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:item:pelle_#00:de",
+      "card:building:small_cemetery_#00:de",
+      "help:collec:de",
+      "help:towns_in_nondistantregions:de",
+      "help:coalitions:de",
+      "topic:jobs",
+      "summary:src/Structures/Math.php"
+    ]
+  },
+  {
+    "q": "What is the difference between small towns and normal towns?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:town:small:en",
+      "topic:town-types",
+      "topic:catapult",
+      "topic:workshop",
+      "topic:soul-points-and-pictos"
+    ]
+  },
+  {
+    "q": "Quelles sont les règles spéciales du Pandémonium ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:hardcore_towns:fr",
+      "card:town:panda:fr",
+      "help:seasons_and_rankings:fr",
+      "help:extreme_camping:fr",
+      "help:private_towns:fr",
+      "topic:wounds-and-infection",
+      "topic:town-types"
+    ]
+  },
+  {
+    "q": "What do I get when I dismantle a broken electrical appliance in the workshop?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:item:electro_box_#00:en",
+      "card:item:meca_parts_#00:en",
+      "topic:workshop",
+      "card:item:mixergun_part_#00:en",
+      "card:item:mecanism_#00:en",
+      "topic:construction"
+    ]
+  },
+  {
+    "q": "What is the Guard Tower for?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "card:building:small_watchmen_#00:en",
+      "summary:src/Service/Actions/Game/AtomProcessors/Require/Custom/GuardTowerUseIsNotMaxed.php",
+      "summary:src/Service/Actions/Game/AtomProcessors/Require/Custom/GuardTowerUseIsNotMaxed.php:GuardTowerUseIsNotMaxed::__invoke",
+      "card:building:item_tagger_#00:en",
+      "topic:night-watch"
+    ]
+  },
+  {
+    "q": "What is the Scavenger's digging bonus?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "topic:digging",
+      "card:profession:collec:en",
+      "topic:jobs",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "topic:ruin-exploration"
+    ]
+  },
+  {
+    "q": "Comment fonctionne la catapulte ?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:catapult:fr",
+      "summary:src/Controller/REST/Game/Town/Facilities/CatapultController.php:x",
+      "summary:src/Controller/Town/TownAddonsController.php:TownAddonsController::addon_catapult",
+      "card:building:item_courroie_#00:fr",
+      "card:building:item_courroie_#01:fr"
+    ]
+  },
+  {
+    "q": "¿Qué es un alma perdida?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:lost_souls:es",
+      "card:item:soul_blue_#00:es",
+      "card:item:soul_blue_#01:es",
+      "card:item:soul_red_#00:es",
+      "card:list:pictos:es",
+      "topic:shaman-and-souls",
+      "topic:town-defense"
+    ]
+  },
+  {
+    "q": "Wann wird man zum Ghul?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "help:ghouls:de",
+      "help:health:de",
+      "topic:ghouls",
+      "card:role:ghoul:de",
+      "card:item:disinfect_#00:de",
+      "summary:src/Service/CitizenHandler.php:CitizenHandler::addRole"
+    ]
+  },
+  {
+    "q": "How do I get more water into the town well?",
+    "level": "medium",
+    "rank": 1,
+    "top": [
+      "topic:thirst-and-water",
+      "summary:src/EventListener/Game/Town/Basic/Well/WellInsertionCommonListener.php:WellInsertionCommonListener::onUpdateCounters",
+      "summary:src/Entity/Town.php:Town::setWell",
+      "summary:src/EventListener/Game/Town/Basic/Well/WellInsertionCommonListener.php",
+      "summary:src/EventListener/Game/Town/Basic/Buildings/BuildingConstructionListener.php:BuildingConstructionListener::onExecuteWellEffect"
+    ]
+  },
+  {
+    "q": "What is the chance to find something when digging in a depleted zone?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "topic:digging",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "summary:src/Service/ZoneHandler.php:ZoneHandler::updateZone",
+      "topic:scouts",
+      "topic:scavenging-buildings"
+    ]
+  },
+  {
+    "q": "Quelle est la probabilité de mourir en veille ?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "help:the_watchmen:fr",
+      "card:status:infection:fr",
+      "help:survivalist:fr",
+      "help:extreme_camping:fr",
+      "card:status:addict:fr",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getNightWatchDeathChances",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_status"
+    ]
+  },
+  {
+    "q": "How is the size of the nightly zombie attack estimated?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "topic:attack-estimation",
+      "summary:src/Service/Actions/Game/EstimateZombieAttackAction.php",
+      "summary:src/Service/Actions/Game/PrepareZombieAttackEstimationAction.php",
+      "summary:src/Service/TownHandler.php:TownHandler::get_zombie_estimation",
+      "summary:src/Entity/ZombieEstimation.php"
+    ]
+  },
+  {
+    "q": "How many new zombies appear in the desert each night?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "topic:zombie-spread",
+      "topic:night-watch",
+      "summary:src/Service/Maps/MapMaker.php:MapMaker::spreadCycleMH",
+      "help:the_attack_of_the_hordes:en",
+      "summary:src/Controller/BeyondController.php:BeyondController::desert_move_api"
+    ]
+  },
+  {
+    "q": "Does night time change anything when digging?",
+    "level": "hard",
+    "rank": 1,
+    "top": [
+      "topic:digging",
+      "topic:scouts",
+      "summary:src/Service/ZoneHandler.php:ZoneHandler::updateZone",
+      "summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances",
+      "code:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getDigChances"
+    ]
+  },
+  {
+    "q": "comment on fait pour pas mourir de soif dans l'OM ?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:health:fr",
+      "help:ghouls:fr",
+      "card:heroskill:cheatdeath:fr",
+      "glossary:fr:gameplay",
+      "help:death_and_soul_points:fr",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_status",
+      "topic:wounds-and-infection"
+    ]
+  },
+  {
+    "q": "c koi le mieux pour fouiller plus vite",
+    "level": "casual",
+    "rank": 2,
+    "top": [
+      "help:collec:fr",
+      "card:profession:collec:fr",
+      "help:exploring_and_scavenging:fr",
+      "glossary:fr:heros",
+      "help:ruin_exploration:fr",
+      "summary:src/Controller/BeyondController.php:BeyondController::ruin_enter_api",
+      "topic:scavenging-buildings"
+    ]
+  },
+  {
+    "q": "jsuis devenu goule wtf je fais quoi",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:ghouls:fr",
+      "help:health:fr",
+      "glossary:fr:gameplay",
+      "card:role:ghoul:fr",
+      "card:item:vagoul_#00:fr",
+      "summary:src/Service/CitizenHandler.php:CitizenHandler::inflictStatus",
+      "topic:ghouls"
+    ]
+  },
+  {
+    "q": "ca sert a quoi le gros trou autour de la ville",
+    "level": "casual",
+    "rank": 4,
+    "top": [
+      "glossary:fr:chantier",
+      "card:building:small_round_path_#00:fr",
+      "card:building:small_trash_#00:fr",
+      "card:building:small_gather_#00:fr",
+      "help:world_beyond:fr",
+      "summary:src/Service/Actions/Ghost/ExplainTownConfigAction.php",
+      "summary:src/Controller/BeyondController.php:BeyondController::ruin_enter_api"
+    ]
+  },
+  {
+    "q": "on trouve ou du cyanure",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:item:cyanure_#00:fr",
+      "card:item:coffee_machine_part_#00:fr",
+      "card:ruin:deserted_hospital:fr",
+      "card:ruin:pharma:fr",
+      "card:ruin:school:fr",
+      "topic:drugs-and-addiction",
+      "topic:shaman-and-souls"
+    ]
+  },
+  {
+    "q": "le chaman il sert à quoi en vrai",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:shaman:fr",
+      "card:profession:shaman:fr",
+      "card:role:shaman:fr",
+      "help:lost_souls:fr",
+      "card:item:shaman_#00:fr",
+      "topic:jobs",
+      "summary:src/Service/HTMLService.php:HTMLService::htmlPrepare"
+    ]
+  },
+  {
+    "q": "c'est quoi la diff entre petite ville et ville normale",
+    "level": "casual",
+    "rank": 4,
+    "top": [
+      "help:coalitions:fr",
+      "help:welcome_to_the_town:fr",
+      "help:seasons_and_rankings:fr",
+      "card:town:small:fr",
+      "glossary:fr:chantier",
+      "topic:zone-control",
+      "topic:town-defense"
+    ]
+  },
+  {
+    "q": "how do i get rid of infection",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:status:infection:en",
+      "topic:wounds-and-infection",
+      "topic:roles-and-votes",
+      "topic:ghouls",
+      "help:health:en"
+    ]
+  },
+  {
+    "q": "where do i get batterys",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:item:pile_#00:en",
+      "card:item:pilegun_empty_#00:en",
+      "card:item:big_pgun_empty_#00:en",
+      "card:item:sport_elec_empty_#00:en",
+      "card:item:pilegun_up_empty_#00:en",
+      "topic:night-attack",
+      "summary:src/Service/InventoryHandler.php:InventoryHandler::getAllItems"
+    ]
+  },
+  {
+    "q": "is it safe to sleep outside the town",
+    "level": "casual",
+    "rank": 3,
+    "top": [
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_vanish",
+      "help:world_beyond:en",
+      "topic:camping",
+      "topic:wounds-and-infection",
+      "summary:src/Controller/Town/TownAddonsController.php:TownAddonsController::addon_nightwatch"
+    ]
+  },
+  {
+    "q": "whats the point of the tower that tells you how big the attack is",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "topic:attack-estimation",
+      "card:building:item_tagger_#00:en",
+      "topic:night-attack",
+      "card:building:item_tagger_#02:en",
+      "card:building:small_gather_#02:en"
+    ]
+  },
+  {
+    "q": "how many AP for the first wall",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "topic:construction",
+      "card:building:small_wallimprove_#00:en",
+      "card:building:small_wallimprove_#01:en",
+      "card:building:item_home_def_#00:en",
+      "card:building:item_plate_#03:en",
+      "summary:src/Entity/Building.php:Building::getPrototypeAP"
+    ]
+  },
+  {
+    "q": "pando rules?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:town:panda:en",
+      "topic:banishment",
+      "topic:escort",
+      "rule:panda:diff",
+      "topic:homes"
+    ]
+  },
+  {
+    "q": "wie überlebe ich die nacht draußen",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:extreme_camping:de",
+      "help:world_beyond:de",
+      "help:welcome:de",
+      "help:the_watchmen:de",
+      "help:the_community:de",
+      "summary:src/Service/NightlyHandler.php:NightlyHandler::stage1_vanish",
+      "topic:scavenging-buildings"
+    ]
+  },
+  {
+    "q": "was macht der schami",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "help:shaman:de",
+      "card:profession:shaman:de",
+      "topic:jobs",
+      "help:lost_souls:de",
+      "card:item:shaman_#00:de",
+      "summary:src/EventListener/Game/Citizen/CitizenOptionListener.php:CitizenOptionListener::onPopulateWorkshopRecipes"
+    ]
+  },
+  {
+    "q": "est-ce qu'il est vrai que les éclaireurs peuvent renforcer les fouilles",
+    "level": "hard",
+    "rank": 6,
+    "top": [
+      "help:the_community:fr",
+      "card:profession:hunter:fr",
+      "help:the_night:fr",
+      "help:getting_around:fr",
+      "help:exploring_and_scavenging:fr",
+      "topic:scouts",
+      "summary:src/Entity/RuinExplorerStats.php:RuinExplorerStats::isAt"
+    ]
+  },
+  {
+    "q": "quel est le meilleur spot de camping ?",
+    "level": "casual",
+    "rank": 2,
+    "top": [
+      "code:src/Controller/BeyondController.php:BeyondController::desert",
+      "topic:camping",
+      "topic:scavenging-buildings",
+      "help:extreme_camping:fr",
+      "card:item:wood_plate_#00:fr"
+    ]
+  },
+  {
+    "q": "is the AAA a good place to camp?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:ruin:bunker:en",
+      "topic:camping",
+      "topic:scavenging-buildings",
+      "card:ruin:fair:en",
+      "help:extreme_camping:en"
+    ]
+  },
+  {
+    "q": "Qu'est-ce qu'un MEK ?",
+    "level": "casual",
+    "rank": 1,
+    "top": [
+      "card:item:deco_box_#00:fr",
+      "glossary:fr:objet-encombrant",
+      "card:list:home:fr",
+      "card:item:radius_mk2_#00:fr",
+      "card:item:noodle_prints_#00:fr",
+      "topic:food-and-ap",
+      "topic:scouts"
+    ]
+  }
+]

@@ -66,6 +66,7 @@ reference facts verified against the game code. Add questions that got a 👎 on
 |---|---|---|
 | `DATABASE_URL` | `postgres://mhkb:mhkb@127.0.0.1:5433/mhkb` | |
 | `EMBED_MODEL` | `e5-base` | `e5-small` (384d, for 1 GB hosts), `e5-base` (768d), `bge-m3` (1024d). Changing it requires `mhkb embed --reset` |
+| `RERANK_MODEL` | `none` | `jina-v2` or `bge-m3`: a cross-encoder reorders the 30 best results. On the eval: hit@1 80→86%, MRR 0.86→0.91, but ~4 s per search on a 24-thread PC (vs 0.15 s), too slow for a small server |
 | `MODEL_CACHE` | `.cache/models` | |
 | `EXPORT_DIR` | `export` | |
 | `MYHORDES_DIR` | `../myhordes` | |
