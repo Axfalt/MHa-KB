@@ -367,3 +367,12 @@
     - "No effect while stored in the home chest"
     - "Carried in the rucksack during a night watch, each Hot Coffee lowers the watch death chance by 1 percentage point (copies add up)"
   note: "qa_log #10 👎: item cards didn't show the watch death modifier (watchimpact)"
+
+- q: quelle phrase s'affiche lorsque l'on est à 100% de survie en veille ?
+  lang: fr
+  level: casual
+  expect: [summary:src/EventListener/Game/Citizen/CitizenChanceQueryListener.php:CitizenChanceQueryListener::getNightWatchDeathChances]
+  facts:
+    - "Quotes the official French text: « Debout sur les remparts de la ville, vous êtes très confiant quant à l'issue de cette soirée. Vous ne mourrez pas aujourd'hui ! », not the German source or a home-made translation"
+    - "It is shown when the watch death chance is 0% or less"
+  note: "qa_log #20 👎: the bot only had the German string from the code; get_source now adds the official translations"

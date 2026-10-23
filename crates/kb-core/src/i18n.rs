@@ -62,6 +62,11 @@ impl Translations {
         simplify_icu(&self.lookup(lang, domains, de).unwrap_or_else(|| de.to_string()))
     }
 
+    /// Every (lang, whitespace-normalized German source, translation), across all domains
+    pub fn entries(&self) -> impl Iterator<Item = (&str, &str, &str)> {
+        self.normalized.iter().flat_map(|(lang, m)| m.iter().map(move |(de, text)| (lang.as_str(), de.as_str(), text.as_str())))
+    }
+
     pub fn lookup(&self, lang: &str, domains: &[&str], de: &str) -> Option<String> {
         if de.is_empty() {
             return None;

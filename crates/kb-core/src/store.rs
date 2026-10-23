@@ -7,7 +7,7 @@ use sqlx::{AssertSqlSafe, PgPool, Row};
 
 use crate::db;
 use crate::embed::Embedder;
-use crate::text::{chunk, sha256_hex};
+use crate::text::{chunk, normalize_ws, sha256_hex};
 
 /// Max characters per chunk. E5 models truncate at 512 tokens; ~1800 chars of mixed
 /// German/French/English stays below that.
@@ -211,6 +211,36 @@ pub async fn replace_source_files(pool: &PgPool, files: &[(String, String, Strin
     }
     tx.commit().await?;
     Ok(())
+}
+
+pub async fn replace_translations(pool: &PgPool, rows: &[(&str, &str, &str)]) -> Result<()> {
+    let mut tx = pool.begin().await?;
+    sqlx::query("DELETE FROM translations").execute(&mut *tx).await?;
+    for batch in rows.chunks(2000) {
+        let langs: Vec<&str> = batch.iter().map(|r| r.0).collect();
+        let des: Vec<&str> = batch.iter().map(|r| r.1).collect();
+        let texts: Vec<&str> = batch.iter().map(|r| r.2).collect();
+        sqlx::query("INSERT INTO translations (lang, de, text) SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[])")
+            .bind(&langs)
+            .bind(&des)
+            .bind(&texts)
+            .execute(&mut *tx)
+            .await?;
+    }
+    tx.commit().await?;
+    Ok(())
+}
+
+/// Official `lang` texts of German source strings, as (German text as given, translation)
+pub async fn translate(pool: &PgPool, lang: &str, de: &[String]) -> Result<Vec<(String, String)>> {
+    let normalized: Vec<String> = de.iter().map(|s| normalize_ws(s)).collect();
+    let rows: Vec<(String, String)> =
+        sqlx::query_as("SELECT de, text FROM translations WHERE lang = $1 AND md5(de) = ANY(SELECT md5(x) FROM UNNEST($2::text[]) x)")
+            .bind(lang)
+            .bind(&normalized)
+            .fetch_all(pool)
+            .await?;
+    Ok(de.iter().zip(&normalized).filter_map(|(orig, n)| rows.iter().find(|(d, _)| d == n).map(|(_, t)| (orig.clone(), t.clone()))).collect())
 }
 
 /// Creates the HNSW index for the embedding dimension of the active model.

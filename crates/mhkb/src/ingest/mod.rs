@@ -65,7 +65,7 @@ pub async fn run(
     langs: &[String],
 ) -> Result<()> {
     let git_sha = export_git_sha(export);
-    let needs_translations = matches!(source, Source::All | Source::Entities | Source::Help);
+    let needs_translations = matches!(source, Source::All | Source::Entities | Source::Help | Source::Code);
     let tr = if needs_translations {
         Translations::load(&myhordes.join("translations")).context("loading MyHordes translations")?
     } else {
@@ -109,6 +109,9 @@ pub async fn run(
         store::replace_source_files(pool, &files, sha.as_deref()).await?;
         store::replace_code_edges(pool, &out.edges).await?;
         info!(files = files.len(), edges = out.edges.len(), "source files and code edges replaced");
+        let translations: Vec<_> = tr.entries().collect();
+        store::replace_translations(pool, &translations).await?;
+        info!(translations = translations.len(), "translations replaced");
         save(pool, "code:", out.docs).await?;
     }
     if matches!(source, Source::All | Source::Topics) {

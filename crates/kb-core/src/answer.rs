@@ -15,6 +15,7 @@ use crate::claude::{Claude, Usage};
 use crate::embed::Embedder;
 use crate::i18n::LANGS;
 use crate::search::{self, Hit, SearchOptions};
+use crate::store;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Mode {
@@ -93,6 +94,8 @@ Your knowledge comes from a knowledge base generated from the MyHordes source co
 
 Summaries are written automatically and can contain mistakes. When a number or rule in your answer comes only from a summary, check it in the code with get_source (the summary gives the file and lines) before stating it, and cite the summary.
 
+Texts shown to players are written in German in the code; get_source follows them with their official in-game translation. When you quote a game text, quote that translation in the language of the answer, not your own.
+
 How to answer:
 - Base your answer on knowledge base documents. Search again with different words when the first results don't contain the answer: try the official in-game name, English, or a broader topic. Players use nicknames and slang.
 - MyHordes differs from the original Hordes in many details. If the knowledge base does not contain the answer, say so plainly instead of guessing. If you add something from general knowledge, mark it as unverified.
@@ -148,7 +151,7 @@ fn tools() -> Value {
         },
         {
             "name": "get_source",
-            "description": "Read lines of a MyHordes source file, e.g. to verify a number or condition given by a summary document. Paths look like src/EventListener/Game/Citizen/CitizenChanceQueryListener.php. At most 150 lines per call.",
+            "description": "Read lines of a MyHordes source file, e.g. to verify a number or condition given by a summary document, or to find the exact text the game shows (German in the code, followed by its official translation). Paths look like src/EventListener/Game/Citizen/CitizenChanceQueryListener.php. At most 150 lines per call.",
             "input_schema": {
                 "type": "object",
                 "properties": {
@@ -322,7 +325,9 @@ async fn run_tool(pool: &PgPool, embedder: &Embedder, mode: Mode, default_lang: 
             let key = format!("code:{path}");
             seen.entry(key.clone()).or_insert_with(|| Source { key: key.clone(), title: format!("Source code: {path}"), kind: "code".into(), path: Some(path.clone()), git_sha });
             let lines: String = content.lines().enumerate().skip(start - 1).take(end + 1 - start).map(|(i, l)| format!("{:>5}| {l}\n", i + 1)).collect();
-            Ok(format!("<source key=\"{key}\" lines=\"{start}-{end}\">\n{lines}</source>"))
+            let mut out = format!("<source key=\"{key}\" lines=\"{start}-{end}\">\n{lines}</source>");
+            out.push_str(&game_texts(pool, default_lang, &lines).await?);
+            Ok(out)
         }
         "list_entities" => {
             let kind = str_arg("kind").unwrap_or_default();
@@ -367,6 +372,34 @@ async fn run_tool(pool: &PgPool, embedder: &Embedder, mode: Mode, default_lang: 
         }
         other => Ok(format!("Unknown tool '{other}'.")),
     }
+}
+
+/// German string literals passed to the translator: `$trans->trans('…', [], 'game')`, `T::__("…", 'game')`
+static TRANS_LITERAL: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r#"(?:trans|__)\(\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")"#).unwrap());
+
+/// Official `lang` translations of the game texts in a piece of source code, or "" when there are none
+async fn game_texts(pool: &PgPool, lang: &str, code: &str) -> Result<String> {
+    let mut texts: Vec<String> = Vec::new();
+    for c in TRANS_LITERAL.captures_iter(code) {
+        let text = c.get(1).or_else(|| c.get(2)).map_or("", |m| m.as_str()).replace("\\'", "'").replace("\\\"", "\"").replace("\\\\", "\\");
+        if !text.is_empty() && !texts.contains(&text) {
+            texts.push(text);
+        }
+    }
+    if texts.is_empty() || lang == "de" {
+        return Ok(String::new());
+    }
+    let found = store::translate(pool, lang, &texts).await?;
+    if found.is_empty() {
+        return Ok(String::new());
+    }
+    let mut out = format!("\n<game_texts lang=\"{lang}\" note=\"official in-game wording of the German texts above\">\n");
+    for (de, text) in found {
+        let _ = writeln!(out, "- \"{de}\" → \"{text}\"");
+    }
+    out.push_str("</game_texts>");
+    Ok(out)
 }
 
 static CITATION: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\[((?:card|help|rule|code|summary|topic|glossary):[^\]\s]+)\]").unwrap());
